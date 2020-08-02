@@ -16,7 +16,7 @@ app.on('ready', function() {
     // Uma das opções que é possível definir ao criar uma janela, é o seu tamanho
     mainWindow = new BrowserWindow({width: 400, height: 600});
     // Depois apontamos a janela para o HTML que criamos anteriormente
-    mainWindow.loadURL('file://' + __dirname + '/index.html');
+    mainWindow.loadURL('file://' + __dirname + '/html/index.html');
     //contents.getPrinters();
  
     // Escutamos para quando a janela for fechada
