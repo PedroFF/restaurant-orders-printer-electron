@@ -1,6 +1,8 @@
 const axios = require('axios');
-const api_url = require('../config.json').API_URL;
-const config = {
+const api_restaurant_url = require('../config.json').API_URL;
+const api_key = require('../config.json').API_KEY;
+const agenda = new Agenda();
+const configRestaurant = {
     headers: {
         'Authorization': AUTH_TOKEN,
         'Accept': 'application/json',
@@ -8,8 +10,49 @@ const config = {
     }
 };
 
+const configAPI = {
+    headers: {
+        'x-access-token': API_KEY,
+    }
+};
 
-axios.post(
-    api_url,
-    config
-).then(console.log).catch(console.log);
+let orders;
+
+agenda.define('searchOrders', job => {
+    axios.post(
+        api_restaurant_url,
+        configRestaurant
+    ).then((newOrders) => {
+        orders.push(newOrders);
+        sendToAPI(newOrders);
+        printOrders(newOrders);
+    })
+    .catch(console.log('Nenhum pedido novo'));
+});
+agenda.every('15 seconds', 'searchOrders');
+
+function sendToAPI(orders) {
+    verifyKey(orders[0]);
+    foreach (order in orders) {
+        axios.post(
+            '/api/restaurants/orders',
+            order,
+            configAPI);
+    }
+}
+
+function verifyKey(order) {
+    if(api_key === null||undefined){
+        axios.post('api/restaurants/signup',
+        data: {
+            name: order.resraurant_name,
+            key: order.restaurant_key,
+            systemToken: order.restaurant_token
+        });
+    }
+}
+
+function printOrders(orders) {
+    //TODO
+}
+

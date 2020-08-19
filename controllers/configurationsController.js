@@ -8,4 +8,6 @@ $(document).ready(function () {
         $('#impressora').append($("<option></option>").attr("value", id).text(valor.displayName));
     });
 
+
+
 })
