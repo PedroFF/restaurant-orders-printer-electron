@@ -14,8 +14,13 @@ let mainWindow;
 app.on('ready', function() {
     // Uma das opções que é possível definir ao criar uma janela, é o seu tamanho
     mainWindow = new BrowserWindow({width: 1200, height: 600, webPreferences:{nodeIntegration:true}});
+    
     // Depois apontamos a janela para o HTML que criamos anteriormente
     mainWindow.loadURL('file://' + __dirname + '/views/index.html');
+    
+    
+    
+
     mainWindow.webContents.openDevTools();
     // Escutamos para quando a janela for fechada
     mainWindow.on('closed', function() {

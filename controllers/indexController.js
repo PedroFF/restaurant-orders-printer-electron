@@ -23,17 +23,18 @@ agenda.define('searchOrders', job => {
         api_restaurant_url,
         configRestaurant
     ).then((newOrders) => {
-        orders.push(newOrders);
-        sendToAPI(newOrders);
         printOrders(newOrders);
+        orders.push(newOrders);
+        //sendToAPI(newOrders);
+        
     })
-    .catch(console.log('Nenhum pedido novo'));
+        .catch(console.log('Nenhum pedido novo'));
 });
 agenda.every('15 seconds', 'searchOrders');
 
 function sendToAPI(orders) {
     verifyKey(orders[0]);
-    foreach (order in orders) {
+    foreach(order in orders) {
         axios.post(
             '/api/restaurants/orders',
             order,
@@ -42,9 +43,9 @@ function sendToAPI(orders) {
 }
 
 function verifyKey(order) {
-    if(api_key === null||undefined){
+    if (api_key === null || undefined) {
         axios.post('api/restaurants/signup',
-        data: {
+            data: {
             name: order.resraurant_name,
             key: order.restaurant_key,
             systemToken: order.restaurant_token
@@ -53,6 +54,29 @@ function verifyKey(order) {
 }
 
 function printOrders(orders) {
-    //TODO
+    createPrintHTML();
+
+    const fs = require('fs');
+    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
+    let options = JSON.parse(rawdata);
+    
+    let win = BrowserWindow.getFocusedWindow(); 
+	//let win = BrowserWindow.getAllWindows()[0]; 
+
+     win.webContents.print(options, (success, failureReason) => { 
+         if (!success) console.log(failureReason); 
+ 
+         console.log('Impressão Iniciada'); 
+     }); 
+
+}
+
+function createPrintHTML()
+{
+    const fs = require('fs');
+    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/order.json');
+    let order = JSON.parse(rawdata);
+    return order;
+
 }
 
