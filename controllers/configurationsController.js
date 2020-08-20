@@ -9,9 +9,23 @@ $(document).ready(function () {
     });
 })
 
+$(document).ready(function() {
+    const fs = require('fs');
+    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/order.json');
+    let order = JSON.parse(rawdata);
+
+    $('.nomeCliente').text(order.orders[0].client_last_name);
+
+    console.log(order.orders[0].id);
+    console.log(order.orders[0].total_price);
+    console.log(order.orders[0].client_email);
+    console.log(order.orders[0].client_last_name);
+
+})
+
 function salvarConfig() {
     const fs = require('fs');
-
+    let token = document.getElementById('token').value;
     let options = {
         silent: 'true',
         printBackground: 'true',
@@ -23,7 +37,7 @@ function salvarConfig() {
         landscape: 'false',
         pagesPerSheet: 1,
         collate: false,
-        copies: document.getElementById('vias').value,
+        copies: Number(document.getElementById('vias').value),
         header: 'Header of the Page',
         footer: 'Footer of the Page'
     }
@@ -43,10 +57,7 @@ function printOrders() {
 }
 
 function createPrintHTML() {
-    const fs = require('fs');
-    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/order.json');
-    let order = JSON.parse(rawdata);
-
+    
     const fs2 = require('fs');
     let rawdata2 = fs2.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
     let options = JSON.parse(rawdata2);
@@ -63,28 +74,15 @@ function createPrintHTML() {
     
     win.loadURL('file://' + __dirname + '/pedido.html');
 
-   //win.getElementById('first-name') = order.orders[0].client_first_name;
-     teste(order);
-
+   
     win.webContents.on('did-finish-load', () => {
         win.webContents.print(options, (success, errorType) => {
             if (!success) console.log(errorType)
         });
     });
 
-    //$("table").append($("<tr></tr>").attr("nome", order.orders[0].id));
-    // document.getElementById('nome')= order.orders[0].client_first_name;
-    console.log(order.orders[0].id);
-    console.log(order.orders[0].total_price);
-    console.log(order.orders[0].client_email);
-    console.log(order.orders[0].client_last_name);
-    console.log();
-
+ 
 }
 
-$(document).ready(function teste(order)
-{   
-    $('#impressora').append
 
-})
 
