@@ -22,6 +22,8 @@
   "dependencies": {
     "agenda": "^3.1.0",
     "axios": "^0.19.2",
-    "jquery": "^3.5.1"
+    "cron": "^1.8.2",
+    "jquery": "^3.5.1",
+    "node-cron": "^2.0.3"
   }
 }
