@@ -1,0 +1,27 @@
+{
+  "name": "restaurant-orders-printer-electron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PedroFF/restaurant-orders-printer-electron.git"
+  },
+  "author": "João D. - Pedro F. - Rian A",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PedroFF/restaurant-orders-printer-electron/issues"
+  },
+  "homepage": "https://github.com/PedroFF/restaurant-orders-printer-electron#readme",
+  "devDependencies": {
+    "electron": "^9.1.2"
+  },
+  "dependencies": {
+    "agenda": "^3.1.0",
+    "axios": "^0.19.2",
+    "jquery": "^3.5.1"
+  }
+}
