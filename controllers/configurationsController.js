@@ -25,7 +25,8 @@ $(document).ready(function() {
 
 function salvarConfig() {
     const fs = require('fs');
-    let token = document.getElementById('token').value;
+    let token = {token: document.getElementById('token').value};
+
     let options = {
         silent: 'true',
         printBackground: 'true',
@@ -47,6 +48,13 @@ function salvarConfig() {
     fs.writeFile('../restaurant-orders-printer-electron/printconfig.json', data, (err) => {
         if (err) throw err;
         console.log('Data written to file');
+    });
+
+    let buffer = fs.readFileSync('../restaurant-orders-printer-electron/config.json');
+    let config = JSON.parse(buffer);
+    Object.assign(config, token);
+    fs.writeFile('../restaurant-orders-printer-electron/config.json', JSON.stringify(config), (err) => {
+        if (err) throw err;
     });
 
 }
