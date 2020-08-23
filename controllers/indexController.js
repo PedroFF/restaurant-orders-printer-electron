@@ -90,23 +90,24 @@ $(document).ready(function () {
     }
 
     function printOrders(orders) {
-        createPrintHTML(orders.orders[0]);
-        let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
-        let options = JSON.parse(rawdata);
-        const electron = require('electron');
-        const BrowserWindow = electron.remote.BrowserWindow;
-        let win = new BrowserWindow({
-            width: 300, show: false, webPreferences: {
-                nodeIntegration: true
-            }
-        });
-        win.loadURL('file://' + __dirname + '/pedido.html');
-        win.webContents.on('did-finish-load', () => {
-            win.webContents.print(options, (success, errorType) => {
-                if (!success) console.log(errorType)
+        for (let order of orders.orders) {
+            createPrintHTML(order);
+            let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
+            let options = JSON.parse(rawdata);
+            const electron = require('electron');
+            const BrowserWindow = electron.remote.BrowserWindow;
+            let win = new BrowserWindow({
+                width: 300, show: false, webPreferences: {
+                    nodeIntegration: true
+                }
             });
-        });
-
+            win.loadURL('file://' + __dirname + '/pedido.html');
+            win.webContents.on('did-finish-load', () => {
+                win.webContents.print(options, (success, errorType) => {
+                    if (!success) console.log(errorType)
+                });
+            });
+        }
     }
 
     function createPrintHTML(order) {
