@@ -8,7 +8,6 @@
     <meta charset="UTF-8">
     <title>Order Printer - Impressão de Pedidos</title>
     <script src="../controllers/indexController.js"></script>
-    <script src="../controllers/configurationsController.js"></script>
 </head>
 
 <body>
@@ -40,29 +39,9 @@
     <br><br>
     <center><h5>Lista de Pedidos</h5></center>
     <br><br>
-    <div class="container">
-    <table class="table table-sm">
-        <thead>
-            <tr>
-                <th scope="col"><center>Pedido</center></th>
-                <th scope="col"><center>Data</center></th>
-                <th scope="col"><center></center></th>
+    <div class="container" id="table_list">
 
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row"><center>001</center></th>
-                <td><center>25/08/2020</center></td>
-                <td><center><button type="button" class="btn btn-warning">Reimprimir</button></center></td>
-            </tr>
-
-        </tbody>
-    </table>
-    <center><button onclick="printOrders();" type="button" class="btn btn-success">Iniciar</button>
-
-    <button type="button"  class="btn btn-danger">Parar</button></center>
-</div>
+    </div>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>

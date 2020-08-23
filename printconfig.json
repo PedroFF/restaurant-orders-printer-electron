@@ -1,1 +1,15 @@
-{"silent":"true","printBackground":"true","deviceName":"Microsoft Print to PDF","color":"false","margin":{"marginType":"printableArea"},"landscape":"false","pagesPerSheet":1,"collate":false,"copies":4,"header":"Header of the Page","footer":"Footer of the Page"}
+{
+  "silent": "true",
+  "printBackground": "true",
+  "deviceName": "PDFCreator",
+  "color": "false",
+  "margin": {
+    "marginType": "printableArea"
+  },
+  "landscape": "false",
+  "pagesPerSheet": 1,
+  "collate": false,
+  "copies": 4,
+  "header": "Header of the Page",
+  "footer": "Powered By JPR Solutions"
+}

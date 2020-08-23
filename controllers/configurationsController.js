@@ -5,11 +5,21 @@ $(document).ready(function () {
     const printers = webContents.getPrinters();
     console.log(printers);
     $.each(printers, function (id, valor) {
-        $('#impressora').append($("<option></option>").attr("value", id).text(valor.displayName));
+        $('#impressora').append($("<option></option>").attr("value", valor.displayName).text(valor.displayName));
     });
+    carregaConfig()
 })
 
-
+function carregaConfig(){
+    const fs = require('fs');
+    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
+    let options = JSON.parse(rawdata);
+    $("#impressora").val(options.deviceName).change()
+    $('#vias').val(options.copies)
+    let buffer = fs.readFileSync('../restaurant-orders-printer-electron/config.json');
+    let config = JSON.parse(buffer);
+    $('#token').val(config.token)
+}
 
 function salvarConfig() {
     const fs = require('fs');
@@ -43,39 +53,6 @@ function salvarConfig() {
     fs.writeFile('../restaurant-orders-printer-electron/config.json', JSON.stringify(config), (err) => {
         if (err) throw err;
     });
-
-}
-
-function printOrders() {
-    createPrintHTML();
-
-}
-
-function createPrintHTML() {
-
-    const fs2 = require('fs');
-    let rawdata2 = fs2.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
-    let options = JSON.parse(rawdata2);
-
-    const electron = require('electron');
-    const BrowserWindow = electron.remote.BrowserWindow;
-
-    let win = new BrowserWindow({
-        width: 300, show: false, webPreferences: {
-            nodeIntegration: true
-        }
-    });
-
-
-    win.loadURL('file://' + __dirname + '/pedido.html');
-
-
-    win.webContents.on('did-finish-load', () => {
-        win.webContents.print(options, (success, errorType) => {
-            if (!success) console.log(errorType)
-        });
-    });
-
 
 }
 
