@@ -26,28 +26,28 @@
 
 <body>
     <center>
-        <h1 class="restaurant_name">Pronto</h1>
-        <h3 class="restaurant_street">Endereço: Park avenue 78</h3>
-        <h3 class="restaurant_phone">Contato: +12126871145</h3>
+        <h1 class="restaurant_name">%nomeRestaurante%</h1>
+        <h3 class="restaurant_street">Endereço: %enderecoRestaurante%</h3>
+        <h3 class="restaurant_phone">Contato: %telefoneRestaurante%</h3>
     </center>
 
     <br>
-    <h2 class="id">6816</h2>
+    <h2 class="id">%idPedido%</h2>
     <br>
 
-    <h3 class="nomeCliente">Cliente: John% Doe</h3>
-    <h3 class="client_phone">Contato: +12126871225</h3>
-    <h3 class="client_address">Endereço: Park avenue 121, Manhattan</h3>
+    <h3 class="nomeCliente">Cliente: %primeiroNomeCliente% %ultimoNomeCliente%</h3>
+    <h3 class="client_phone">Contato: %telefoneCliente%</h3>
+    <h3 class="client_address">Endereço: %enderecoCliente%</h3>
     <br>
-    <h3 class="type">Tipo de Entrega: delivery</h3>
+    <h3 class="type">Tipo de Entrega: %tipoEntrega%</h3>
     <h3>Instruções de Entrega:</h3>
-    <h3 class="instructions"> Please call when you arrive at the gate</h3>
+    <h3 class="instructions"> %instrucaoEntrega%</h3>
     <br>
     <h3> Itens do Pedido: </h3>
     <div class="table-responsive" id="table_space">
-        <table class="table table-bordered table-sm"><thead><tr><th>Quantidade</th><th>Nome</th><th>Opções</th></tr><tr><td>1</td><td>DELIVERY_FEE</td><td></td></tr><tr><td>1</td><td>TIP</td><td></td></tr><tr><td>4</td><td>Pizza Margherita</td><td>Large, Extra mozzarella</td></tr><tr><td>1</td><td>5$ off total for first time clients</td><td></td></tr><tr><td>1</td><td>Free drink on any order $30+</td><td></td></tr><tr><td>1</td><td>Spaghetti Frutti di Mare</td><td></td></tr><tr><td>1</td><td>Buy one get other free</td><td></td></tr><tr><td>1</td><td>Spaghetti Frutti di Mare</td><td></td></tr><tr><td>1</td><td>Cola</td><td>Cola light</td></tr><tr><td>1</td><td>Service fee subtotal 1</td><td></td></tr><tr><td>1</td><td>Service fee subtotal 2</td><td></td></tr><tr><td>1</td><td>Cash discount</td><td></td></tr><tr><td>1</td><td>Service fee total</td><td></td></tr></thead></table>
+        %itensPedido%
     </div>
-    <div class ="total">Valor Total do Pedido: 75.66</div>
+    <div class ="total">Valor Total do Pedido: %total%</div>
 
     <br>
 
