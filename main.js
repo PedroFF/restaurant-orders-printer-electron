@@ -18,6 +18,7 @@ app.on('ready', function() {
     // Depois apontamos a janela para o HTML que criamos anteriormente
     mainWindow.loadURL('file://' + __dirname + '/views/index.html');
 
+
     mainWindow.webContents.openDevTools();
     // Escutamos para quando a janela for fechada
     mainWindow.on('closed', function() {
@@ -25,3 +26,4 @@ app.on('ready', function() {
         mainWindow = null
     });
 });
+
