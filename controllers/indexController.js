@@ -1,8 +1,39 @@
+const api_restaurant_url = require('../config.json').API_URL;
+const api_heroku_url = require('../config.json').API_HEROKU;
+const token = require('../config.json').token;
+const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
+const formatDateTime = new Intl.DateTimeFormat('pt', {year: 'numeric', month: '2-digit', day: '2-digit'})
+const orderFieldsDelivery = {
+    '%nomeRestaurante%': 'restaurant_name',
+    '%enderecoRestaurante%': 'restaurant_street',
+    '%telefoneRestaurante%': 'restaurant_phone',
+    '%idPedido%': 'id',
+    '%primeiroNomeCliente%': 'client_first_name',
+    '%ultimoNomeCliente%': 'client_last_name',
+    '%telefoneCliente%': 'client_phone',
+    '%enderecoCliente%': 'client_address',
+    '%tipoEntrega%': 'type',
+    '%instrucaoEntrega%': 'instructions'
+}
+const paymentType ={
+    'CARD':'Cartão de débito ou crédito',
+    'CASH':'Dinheiro'
+}
+const orderFieldsPickup = {
+    '%nomeRestaurante%': 'restaurant_name',
+    '%enderecoRestaurante%': 'restaurant_street',
+    '%telefoneRestaurante%': 'restaurant_phone',
+    '%idPedido%': 'id',
+    '%primeiroNomeCliente%': 'client_first_name',
+    '%ultimoNomeCliente%': 'client_last_name',
+    '%telefoneCliente%': 'client_phone',
+    '%tipoEntrega%': 'type',
+    '%instrucaoEntrega%': 'instructions'
+}
+let api_key = require('../config.json').API_KEY;
+
 $(document).ready(function () {
     const axios = require('axios');
-    const api_restaurant_url = require('../config.json').API_URL;
-    const api_heroku_url = require('../config.json').API_HEROKU;
-    const token = require('../config.json').token;
     const agenda = require('node-cron');
     const configRestaurant = {
         headers: {
@@ -11,9 +42,6 @@ $(document).ready(function () {
             'Glf-Api-Version': '2'
         }
     };
-    let api_key = require('../config.json').API_KEY;
-    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/order.json');
-    let order = JSON.parse(rawdata);
     var task = agenda.schedule('*/15 * * * * *', () => {
         axios.post(
             api_restaurant_url,
@@ -30,79 +58,79 @@ $(document).ready(function () {
         });
     });
     task.start();
-
-    function saveOrders(newOrders) {
-        let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/orders.json');
-        let file = JSON.parse(rawdata);
-        for (order of newOrders) {
-            file.orders.push(order);
-        }
-        fs.writeFileSync('../restaurant-orders-printer-electron/orders.json', JSON.stringify(file), (err) => {
-            if (err) throw err;
-        });
-    }
-
-    function sendToAPI(orders) {
-        if (orders && orders.length > 0) {
-            verifyKey(orders[0]).then(() => {
-                const options = {headers: {'x-access-token': api_key}}
-                for (order of orders) {
-                    axios.post(
-                        `${api_heroku_url}restaurants/orders`,
-                        order,
-                        options)
-                        .then(() => {
-                                console.log('funfou');
-                            }
-                        )
-                        .catch((error) => {
-                            console.log(error.toJSON());
-                        });
-                }
-            });
-        }
-    }
-
-    async function verifyKey(order) {
-        if (!api_key) {
-            await axios.post(`${api_heroku_url}restaurants/signup`, {
-                name: order.restaurant_name, key: order.restaurant_key, systemToken: order.restaurant_key
-            })
-                .then((response) => {
-                    console.log(response.data);
-                    console.log(response.status);
-                    createApiKey(response.data);
-                })
-                .catch((error) => {
-                    console.log(error.toJSON());
-                });
-        }
-    }
-
-    function createApiKey(data) {
-        let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/config.json');
-        let config = JSON.parse(rawdata);
-        Object.assign(config, {API_KEY: data.accessToken});
-        api_key = data.accessToken;
-        fs.writeFileSync('../restaurant-orders-printer-electron/config.json', JSON.stringify(config), (err) => {
-            if (err) throw err;
-        });
-    }
-
-    function printOrders(orders) {
-        for (let order of orders) {
-            printOrder(order)
-        }
-    }
-
-
     let orderRawData = fs.readFileSync('../restaurant-orders-printer-electron/orders.json');
     let orders = JSON.parse(orderRawData);
-    generateOrderTable(orders.orders)
-
-
+    generateOrderTable(orders.orders.sort(compareOrders))
 });
 const fs = require('fs');
+function saveOrders(newOrders) {
+    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/orders.json');
+    let file = JSON.parse(rawdata);
+    for (order of newOrders) {
+        file.orders.push(order);
+    }
+    fs.writeFileSync('../restaurant-orders-printer-electron/orders.json', JSON.stringify(file), (err) => {
+        if (err) throw err;
+    });
+}
+
+function sendToAPI(orders) {
+    if (orders && orders.length > 0) {
+        verifyKey(orders[0]).then(() => {
+            const options = {headers: {'x-access-token': api_key}}
+            for (order of orders) {
+                axios.post(
+                    `${api_heroku_url}restaurants/orders`,
+                    order,
+                    options)
+                    .then(() => {
+                            console.log('funfou');
+                        }
+                    )
+                    .catch((error) => {
+                        console.log(error.toJSON());
+                    });
+            }
+        });
+    }
+}
+
+async function verifyKey(order) {
+    if (!api_key) {
+        await axios.post(`${api_heroku_url}restaurants/signup`, {
+            name: order.restaurant_name, key: order.restaurant_key, systemToken: order.restaurant_key
+        })
+            .then((response) => {
+                console.log(response.data);
+                console.log(response.status);
+                createApiKey(response.data);
+            })
+            .catch((error) => {
+                console.log(error.toJSON());
+            });
+    }
+}
+
+function createApiKey(data) {
+    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/config.json');
+    let config = JSON.parse(rawdata);
+    Object.assign(config, {API_KEY: data.accessToken});
+    api_key = data.accessToken;
+    fs.writeFileSync('../restaurant-orders-printer-electron/config.json', JSON.stringify(config), (err) => {
+        if (err) throw err;
+    });
+}
+
+function printOrders(orders) {
+    for (let order of orders) {
+        printOrder(order)
+    }
+}
+
+function compareOrders(a, b){
+    var dateA = new Date(a.accepted_at), dateB = new Date(b.accepted_at);
+    return dateB - dateA;
+}
 function printOrder(order) {
     createPrintHTML(order);
     let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
@@ -135,18 +163,26 @@ function createPrintHTMLDelivery(order) {
         encoding: 'utf8',
         flag: 'r'
     })
-    result = ret.replace('%itensPedido%', generateItensTable(order['items']))
+    result = ret.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
     $.each(orderFieldsDelivery, (key, value) => {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
     })
+    result = result.replace('%tipoPagamento%',paymentType[order.payment])
+    let subTotalPrice = formatCurrency.format(order['sub_total_price'])
     let totalPrice = formatCurrency.format(order['total_price'])
+    result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
+    let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
+    result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
     fs.writeFileSync('../restaurant-orders-printer-electron/views/pedido.html', result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
 }
+function filterByItemType(obj) {
+    return 'type' in obj && obj.type === 'item';
 
+}
 function createPrintHTMLPickup(order) {
     let result
     ret = fs.readFileSync('../restaurant-orders-printer-electron/views/pedido-pickup-modelo.html', {
@@ -158,37 +194,14 @@ function createPrintHTMLPickup(order) {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
     })
+    result = result.replace('%tipoPagamento%',paymentType[order.payment])
+    let subTotalPrice = formatCurrency.format(order['sub_total_price'])
     let totalPrice = formatCurrency.format(order['total_price'])
+    result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
     fs.writeFileSync('../restaurant-orders-printer-electron/views/pedido.html', result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
-}
-
-const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
-const formatDateTime = new Intl.DateTimeFormat('pt', {year: 'numeric', month: '2-digit', day: '2-digit'})
-const orderFieldsDelivery = {
-    '%nomeRestaurante%': 'restaurant_name',
-    '%enderecoRestaurante%': 'restaurant_street',
-    '%telefoneRestaurante%': 'restaurant_phone',
-    '%idPedido%': 'id',
-    '%primeiroNomeCliente%': 'client_first_name',
-    '%ultimoNomeCliente%': 'client_last_name',
-    '%telefoneCliente%': 'client_phone',
-    '%enderecoCliente%': 'client_address',
-    '%tipoEntrega%': 'type',
-    '%instrucaoEntrega%': 'instructions'
-}
-const orderFieldsPickup = {
-    '%nomeRestaurante%': 'restaurant_name',
-    '%enderecoRestaurante%': 'restaurant_street',
-    '%telefoneRestaurante%': 'restaurant_phone',
-    '%idPedido%': 'id',
-    '%primeiroNomeCliente%': 'client_first_name',
-    '%ultimoNomeCliente%': 'client_last_name',
-    '%telefoneCliente%': 'client_phone',
-    '%tipoEntrega%': 'type',
-    '%instrucaoEntrega%': 'instructions'
 }
 
 function generateItensTable(items) {
@@ -196,22 +209,20 @@ function generateItensTable(items) {
     tbl.classList.add('table')
     tbl.classList.add('table-bordered')
     tbl.classList.add('table-sm')
-    let tblHead = ['Qtd.', 'Nome', 'Opções']
+    let tblHead = ['Qtd.', 'Nome','Valor', 'Opções']
     generateTableHead(tbl, tblHead)
     $.each(items, function (key, value) {
         let opt = "";
         for (let option of value.options) {
-            if (opt !== "") {
-                opt = opt + ", " + option.name;
-            } else {
-                opt = option.name;
-            }
+            let optPrice = formatCurrency.format(option.price)
+            opt = opt === "" ?`${option.name} - ${optPrice}`: opt + ", " + `${option.name} - ${optPrice}` ;
         }
         let itemInstruction = value.instructions ? `(${value.instructions})` : ""
-        let values = [value.quantity, `${value.name} ${itemInstruction}`, opt]
+        let itemPrice = formatCurrency.format(value.price)
+        let values = [value.quantity, `${value.name} ${itemInstruction}`,itemPrice, opt]
         generateTable(tbl, values)
     });
-    return tbl.outerHTML
+    return tbl.outerHTML.replace(/&nbsp;/g,' ')
 }
 
 function generateOrderTable(orders) {
