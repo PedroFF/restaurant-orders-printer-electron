@@ -78,9 +78,10 @@ function saveOrders(newOrders) {
     for (order of newOrders) {
         file.orders.push(order);
     }
-    fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
+    let result = fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
         if (err) throw err;
     });
+    console.log(result)
     generateOrderTable(file.orders.sort(compareOrders))
 }
 
@@ -126,9 +127,11 @@ function createApiKey(data) {
     let config = JSON.parse(rawdata);
     Object.assign(config, {API_KEY: data.accessToken});
     api_key = data.accessToken;
-    fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
+    let result = fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
         if (err) throw err;
     });
+    console.log(result)
+    console.log(__dirname)
 }
 
 function printOrders(orders) {
@@ -188,9 +191,10 @@ function createPrintHTMLDelivery(order) {
     result = result.replace('%total%', totalPrice)
     let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
     result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
-    fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
+    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
+    console.log(resultSave)
 }
 
 function filterByItemType(obj) {
@@ -215,9 +219,10 @@ function createPrintHTMLPickup(order) {
     let totalPrice = formatCurrency.format(order['total_price'])
     result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
-    fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
+    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
+    console.log(resultSave)
 }
 
 function generateItensTable(items) {

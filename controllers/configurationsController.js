@@ -41,12 +41,12 @@ function salvarConfig() {
 
     let data = JSON.stringify(options);
 
-    fs.writeFile(path.join(__dirname, '..','printconfig.json'), data, (err) => {
+    let result = fs.writeFileSync(path.join(__dirname, '..', 'printconfig.json'), data, (err) => {
         if (err) throw err;
         console.log('Data written to file');
     });
-
-    let buffer = fs.readFileSync(path.join(__dirname, '..','config.json'));
+    console.log(result)
+    let buffer = fs.readFileSync(path.join(__dirname, '..', 'config.json'));
     let config = JSON.parse(buffer);
     Object.assign(config, token);
     fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
