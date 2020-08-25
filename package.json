@@ -4,7 +4,13 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "asar": "true",
+    "productName": "Order Printer"
   },
   "repository": {
     "type": "git",
@@ -17,9 +23,12 @@
   },
   "homepage": "https://github.com/PedroFF/restaurant-orders-printer-electron#readme",
   "devDependencies": {
-    "electron": "^9.1.2"
+    "electron": "^9.1.2",
+    "electron-builder": "^22.8.0",
+    "electron-packager": "^15.1.0"
   },
   "dependencies": {
+    "asar": "^3.0.3",
     "axios": "^0.19.2",
     "jquery": "^3.5.1",
     "node-cron": "^2.0.3"

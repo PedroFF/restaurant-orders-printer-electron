@@ -12,11 +12,12 @@ $(document).ready(function () {
 
 function carregaConfig(){
     const fs = require('fs');
-    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
+    let rawdata = fs.readFileSync(path.join(__dirname, '..','print' +
+        'config.json'));
     let options = JSON.parse(rawdata);
     $("#impressora").val(options.deviceName).change()
     $('#vias').val(options.copies)
-    let buffer = fs.readFileSync('../restaurant-orders-printer-electron/config.json');
+    let buffer = fs.readFileSync(path.join(__dirname, '..','config.json'));
     let config = JSON.parse(buffer);
     $('#token').val(config.token)
 }
@@ -42,12 +43,12 @@ function salvarConfig() {
 
     let data = JSON.stringify(options);
 
-    fs.writeFile('../restaurant-orders-printer-electron/printconfig.json', data, (err) => {
+    fs.writeFile(path.join(__dirname, '..','printconfig.json'), data, (err) => {
         if (err) throw err;
         console.log('Data written to file');
     });
 
-    let buffer = fs.readFileSync('../restaurant-orders-printer-electron/config.json');
+    let buffer = fs.readFileSync(path.join(__dirname, '..','config.json'));
     let config = JSON.parse(buffer);
     Object.assign(config, token);
     fs.writeFile('../restaurant-orders-printer-electron/config.json', JSON.stringify(config), (err) => {

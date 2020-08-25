@@ -1,6 +1,9 @@
-const api_restaurant_url = require('../config.json').API_URL;
-const api_heroku_url = require('../config.json').API_HEROKU;
-const token = require('../config.json').token;
+const path = require('path')
+const api_restaurant_url = require(path.join(__dirname, '..','config.json')).API_URL;
+const api_heroku_url = require(path.join(__dirname, '..','config.json')).API_HEROKU;
+const token = require(path.join(__dirname, '..','config.json')).token;
+const axios = require('axios');
+const agenda = require('node-cron');
 const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
 const formatDateTime = new Intl.DateTimeFormat('pt', {year: 'numeric', month: '2-digit', day: '2-digit'})
 const orderFieldsDelivery = {
@@ -15,9 +18,9 @@ const orderFieldsDelivery = {
     '%tipoEntrega%': 'type',
     '%instrucaoEntrega%': 'instructions'
 }
-const paymentType ={
-    'CARD':'Cartão de débito ou crédito',
-    'CASH':'Dinheiro'
+const paymentType = {
+    'CARD': 'Cartão de débito ou crédito',
+    'CASH': 'Dinheiro'
 }
 const orderFieldsPickup = {
     '%nomeRestaurante%': 'restaurant_name',
@@ -30,11 +33,9 @@ const orderFieldsPickup = {
     '%tipoEntrega%': 'type',
     '%instrucaoEntrega%': 'instructions'
 }
-let api_key = require('../config.json').API_KEY;
+let api_key = require(path.join(__dirname, '..','config.json')).API_KEY;
 
 $(document).ready(function () {
-    const axios = require('axios');
-    const agenda = require('node-cron');
     const configRestaurant = {
         headers: {
             'Authorization': token,
@@ -58,20 +59,22 @@ $(document).ready(function () {
         });
     });
     task.start();
-    let orderRawData = fs.readFileSync('../restaurant-orders-printer-electron/orders.json');
+    let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
     let orders = JSON.parse(orderRawData);
     generateOrderTable(orders.orders.sort(compareOrders))
 });
 const fs = require('fs');
+
 function saveOrders(newOrders) {
-    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/orders.json');
+    let rawdata = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
     let file = JSON.parse(rawdata);
     for (order of newOrders) {
         file.orders.push(order);
     }
-    fs.writeFileSync('../restaurant-orders-printer-electron/orders.json', JSON.stringify(file), (err) => {
+    fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
         if (err) throw err;
     });
+    generateOrderTable(file.orders.sort(compareOrders))
 }
 
 function sendToAPI(orders) {
@@ -112,11 +115,11 @@ async function verifyKey(order) {
 }
 
 function createApiKey(data) {
-    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/config.json');
+    let rawdata = fs.readFileSync(path.join(__dirname, '..', 'config.json'));
     let config = JSON.parse(rawdata);
     Object.assign(config, {API_KEY: data.accessToken});
     api_key = data.accessToken;
-    fs.writeFileSync('../restaurant-orders-printer-electron/config.json', JSON.stringify(config), (err) => {
+    fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
         if (err) throw err;
     });
 }
@@ -127,13 +130,14 @@ function printOrders(orders) {
     }
 }
 
-function compareOrders(a, b){
+function compareOrders(a, b) {
     var dateA = new Date(a.accepted_at), dateB = new Date(b.accepted_at);
     return dateB - dateA;
 }
+
 function printOrder(order) {
     createPrintHTML(order);
-    let rawdata = fs.readFileSync('../restaurant-orders-printer-electron/printconfig.json');
+    let rawdata = fs.readFileSync(path.join(__dirname, '..', 'printconfig.json'));
     let options = JSON.parse(rawdata);
     const electron = require('electron');
     const BrowserWindow = electron.remote.BrowserWindow;
@@ -149,6 +153,7 @@ function printOrder(order) {
         });
     });
 }
+
 function createPrintHTML(order) {
     if (order.type === 'pickup') {
         createPrintHTMLPickup(order)
@@ -159,7 +164,7 @@ function createPrintHTML(order) {
 
 function createPrintHTMLDelivery(order) {
     let result
-    ret = fs.readFileSync('../restaurant-orders-printer-electron/views/pedido-delivery-modelo.html', {
+    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-delivery-modelo.html'), {
         encoding: 'utf8',
         flag: 'r'
     })
@@ -168,24 +173,27 @@ function createPrintHTMLDelivery(order) {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
     })
-    result = result.replace('%tipoPagamento%',paymentType[order.payment])
+    let payment = paymentType[order.payment] ? paymentType[order.payment] : order.payment
+    result = result.replace('%tipoPagamento%', payment)
     let subTotalPrice = formatCurrency.format(order['sub_total_price'])
     let totalPrice = formatCurrency.format(order['total_price'])
     result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
     let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
     result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
-    fs.writeFileSync('../restaurant-orders-printer-electron/views/pedido.html', result, 'utf8', function (err) {
+    fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
 }
+
 function filterByItemType(obj) {
     return 'type' in obj && obj.type === 'item';
 
 }
+
 function createPrintHTMLPickup(order) {
     let result
-    ret = fs.readFileSync('../restaurant-orders-printer-electron/views/pedido-pickup-modelo.html', {
+    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-pickup-modelo.html'), {
         encoding: 'utf8',
         flag: 'r'
     })
@@ -194,12 +202,13 @@ function createPrintHTMLPickup(order) {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
     })
-    result = result.replace('%tipoPagamento%',paymentType[order.payment])
+    let payment = paymentType[order.payment] ? paymentType[order.payment] : order.payment
+    result = result.replace('%tipoPagamento%', payment)
     let subTotalPrice = formatCurrency.format(order['sub_total_price'])
     let totalPrice = formatCurrency.format(order['total_price'])
     result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
-    fs.writeFileSync('../restaurant-orders-printer-electron/views/pedido.html', result, 'utf8', function (err) {
+    fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
 }
@@ -209,45 +218,56 @@ function generateItensTable(items) {
     tbl.classList.add('table')
     tbl.classList.add('table-bordered')
     tbl.classList.add('table-sm')
-    let tblHead = ['Qtd.', 'Nome','Valor', 'Opções']
+    let tblHead = ['Qtd.', 'Nome', 'Valor', 'Opções']
     generateTableHead(tbl, tblHead)
     $.each(items, function (key, value) {
         let opt = "";
         for (let option of value.options) {
             let optPrice = formatCurrency.format(option.price)
-            opt = opt === "" ?`${option.name} - ${optPrice}`: opt + ", " + `${option.name} - ${optPrice}` ;
+            opt = opt === "" ? `${option.name} - ${optPrice}` : opt + ", " + `${option.name} - ${optPrice}`;
         }
         let itemInstruction = value.instructions ? `(${value.instructions})` : ""
         let itemPrice = formatCurrency.format(value.price)
-        let values = [value.quantity, `${value.name} ${itemInstruction}`,itemPrice, opt]
+        let values = [value.quantity, `${value.name} ${itemInstruction}`, itemPrice, opt]
         generateTable(tbl, values)
     });
-    return tbl.outerHTML.replace(/&nbsp;/g,' ')
+    return tbl.outerHTML.replace(/&nbsp;/g, ' ')
 }
 
 function generateOrderTable(orders) {
-    let tbl = document.createElement("table");
-    tbl.classList.add('table')
-    tbl.classList.add('table-sm')
-    let tblHead = ['Id', 'Nome do Cliente', 'Data', 'Opções']
-    generateTableHead(tbl, tblHead)
-    $.each(orders, function (key, value) {
-        let button = document.createElement("button")
-        button.innerText='Reimprimir'
-        button.addEventListener("click", function () {
-            createPrintHTMLById(value.id);
+    let table_list = document.getElementById('table_list')
+    table_list.innerHTML = ''
+    if (orders.length > 0) {
+        let tbl = document.createElement("table");
+        tbl.classList.add('table')
+        tbl.classList.add('table-sm')
+        let tblHead = ['Id', 'Nome do Cliente', 'Data', 'Opções']
+        generateTableHead(tbl, tblHead)
+        $.each(orders, function (key, value) {
+            let button = document.createElement("button")
+            button.innerText = 'Reimprimir'
+            button.addEventListener("click", function () {
+                createPrintHTMLById(value.id);
+            });
+            button.classList.add('btn')
+            button.classList.add('btn-warning')
+            let dateAcceptedAt = formatDateTime.format(new Date(value.accepted_at))
+            let values = [value.id, `${value.client_first_name} ${value.client_last_name}`, dateAcceptedAt, button]
+            generateTable(tbl, values)
         });
-        button.classList.add('btn')
-        button.classList.add('btn-warning')
-        let dateAcceptedAt= formatDateTime.format(new Date(value.accepted_at))
-        let values = [value.id, `${value.client_first_name} ${value.client_last_name}`, dateAcceptedAt,button]
-        generateTable(tbl, values)
-    });
-    document.getElementById('table_list').append(tbl)
+        table_list.append(tbl)
+    } else {
+        let center = document.createElement('center')
+        let spanText = document.createElement('span')
+        spanText.innerText = 'Nenhum Pedido Encontrado. Aprove-os no Aplicativo Restaurante no seu celular e eles aparecerão aqui!!!'
+        center.appendChild(spanText)
+        table_list.appendChild(center)
+    }
 }
-function createPrintHTMLById(id){
+
+function createPrintHTMLById(id) {
     const fs = require('fs');
-    let orderRawData = fs.readFileSync('../restaurant-orders-printer-electron/orders.json');
+    let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
     let orders = JSON.parse(orderRawData);
     let order = orders.orders.find(element => element.id === id)
     printOrder(order)
