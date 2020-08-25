@@ -30,6 +30,7 @@ app.on('ready', function () {
     mainWindow.on('closed', function () {
         // Remove a referência que criamos no começo do arquivo
         mainWindow = null
+        app.quit()
     });
 });
 

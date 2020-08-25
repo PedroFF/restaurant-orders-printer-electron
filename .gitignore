@@ -1,2 +1,4 @@
 node_modules
 .idea
+/dist/
+/Order Printer-win32-x64/
