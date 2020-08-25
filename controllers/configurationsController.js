@@ -1,6 +1,7 @@
+const path = require('path')
+const {remote} = require('electron');
+const app = require('electron').remote.app;
 $(document).ready(function () {
-    const app = require('electron').remote.app;
-    const { remote } = require('electron');
     const webContents = remote.getCurrentWebContents();
     const printers = webContents.getPrinters();
     console.log(printers);
@@ -10,14 +11,13 @@ $(document).ready(function () {
     carregaConfig()
 })
 
-function carregaConfig(){
+function carregaConfig() {
     const fs = require('fs');
-    let rawdata = fs.readFileSync(path.join(__dirname, '..','print' +
-        'config.json'));
+    let rawdata = fs.readFileSync(path.join(__dirname, '..', 'printconfig.json'));
     let options = JSON.parse(rawdata);
     $("#impressora").val(options.deviceName).change()
     $('#vias').val(options.copies)
-    let buffer = fs.readFileSync(path.join(__dirname, '..','config.json'));
+    let buffer = fs.readFileSync(path.join(__dirname, '..', 'config.json'));
     let config = JSON.parse(buffer);
     $('#token').val(config.token)
 }
@@ -36,9 +36,7 @@ function salvarConfig() {
         landscape: 'false',
         pagesPerSheet: 1,
         collate: false,
-        copies: Number(document.getElementById('vias').value),
-        header: 'Header of the Page',
-        footer: 'Footer of the Page'
+        copies: Number(document.getElementById('vias').value)
     }
 
     let data = JSON.stringify(options);
@@ -51,11 +49,9 @@ function salvarConfig() {
     let buffer = fs.readFileSync(path.join(__dirname, '..','config.json'));
     let config = JSON.parse(buffer);
     Object.assign(config, token);
-    fs.writeFile('../restaurant-orders-printer-electron/config.json', JSON.stringify(config), (err) => {
+    fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
         if (err) throw err;
     });
-
 }
-
 
 

@@ -9,7 +9,7 @@
     "dist": "electron-builder"
   },
   "build": {
-    "asar": "true",
+    "asar": "false",
     "productName": "Order Printer"
   },
   "repository": {
@@ -28,7 +28,6 @@
     "electron-packager": "^15.1.0"
   },
   "dependencies": {
-    "asar": "^3.0.3",
     "axios": "^0.19.2",
     "jquery": "^3.5.1",
     "node-cron": "^2.0.3"

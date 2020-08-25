@@ -1,7 +1,7 @@
 const path = require('path')
-const api_restaurant_url = require(path.join(__dirname, '..','config.json')).API_URL;
-const api_heroku_url = require(path.join(__dirname, '..','config.json')).API_HEROKU;
-const token = require(path.join(__dirname, '..','config.json')).token;
+const api_restaurant_url = require(path.join(__dirname, '..', 'config.json')).API_URL;
+const api_heroku_url = require(path.join(__dirname, '..', 'config.json')).API_HEROKU;
+const token = require(path.join(__dirname, '..', 'config.json')).token;
 const axios = require('axios');
 const agenda = require('node-cron');
 const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
@@ -33,7 +33,7 @@ const orderFieldsPickup = {
     '%tipoEntrega%': 'type',
     '%instrucaoEntrega%': 'instructions'
 }
-let api_key = require(path.join(__dirname, '..','config.json')).API_KEY;
+let api_key = require(path.join(__dirname, '..', 'config.json')).API_KEY;
 
 $(document).ready(function () {
     const configRestaurant = {
@@ -64,7 +64,14 @@ $(document).ready(function () {
     generateOrderTable(orders.orders.sort(compareOrders))
 });
 const fs = require('fs');
-
+function clearHistory() {
+    let file = {orders:[]}
+    fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
+        if (err) throw err;
+    });
+    $('#deleteModal').modal('toggle')
+    generateOrderTable(file.orders)
+}
 function saveOrders(newOrders) {
     let rawdata = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
     let file = JSON.parse(rawdata);
