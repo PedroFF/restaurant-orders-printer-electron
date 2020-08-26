@@ -1,5 +1,6 @@
 const electron = require('electron');
-
+const url = require("url");
+const path = require('path')
 // Módulo utilizado para controlar o ciclo de vida da aplicação
 const app = electron.app;
 
@@ -10,7 +11,7 @@ const BrowserWindow = electron.BrowserWindow;
 // ela será fechada automaticamente quando o objeto for pego pelo Garbage Collector
 let mainWindow;
 //let contents = mainWindow.webContents;
-
+var iconPath = '/icon.ico';
 app.on('ready', function () {
     // Uma das opções que é possível definir ao criar uma janela, é o seu tamanho
     mainWindow = new BrowserWindow({
@@ -21,16 +22,28 @@ app.on('ready', function () {
         maxWidth: 900,
         maxHeight: 650,
         maximizable:false,
-        webPreferences: {nodeIntegration: true}
+        webPreferences: {nodeIntegration: true},
+        icon: __dirname + iconPath
     });
-    mainWindow.setMenuBarVisibility(false)
+    mainWindow.setMenuBarVisibility(true)
     // Depois apontamos a janela para o HTML que criamos anteriormente
     mainWindow.loadURL('file://' + __dirname + '/views/index.html');
     // Escutamos para quando a janela for fechada
+    mainWindow.once('ready-to-show',()=>{
+        mainWindow.show()
+    })
     mainWindow.on('closed', function () {
         // Remove a referência que criamos no começo do arquivo
         mainWindow = null
         app.quit()
     });
+});
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit()
+    }
+});
+app.on('closed', function () {
+    mainWindow = null;
 });
 

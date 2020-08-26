@@ -9,8 +9,9 @@
     "dist": "electron-builder"
   },
   "build": {
-    "asar": "false",
-    "productName": "Order Printer"
+    "asar": "true",
+    "productName": "Order Printer",
+    "asarUnpack": ["**/*.json"]
   },
   "repository": {
     "type": "git",

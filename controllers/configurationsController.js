@@ -52,6 +52,7 @@ function salvarConfig() {
     fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
         if (err) throw err;
     });
+    require('electron').remote.getCurrentWindow().close()
 }
 
 

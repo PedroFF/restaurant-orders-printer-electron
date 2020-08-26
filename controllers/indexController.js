@@ -1,3 +1,4 @@
+const url = require("url");
 const path = require('path')
 const api_restaurant_url = require(path.join(__dirname, '..', 'config.json')).API_URL;
 const api_heroku_url = require(path.join(__dirname, '..', 'config.json')).API_HEROKU;
@@ -6,6 +7,7 @@ const axios = require('axios');
 const agenda = require('node-cron');
 const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
 const formatDateTime = new Intl.DateTimeFormat('pt', {year: 'numeric', month: '2-digit', day: '2-digit'})
+var iconPath = path.join(__dirname, '..', 'icon.ico');
 const orderFieldsDelivery = {
     '%nomeRestaurante%': 'restaurant_name',
     '%enderecoRestaurante%': 'restaurant_street',
@@ -308,4 +310,30 @@ function generateTable(table, data) {
             cell.appendChild(text);
         }
     }
+}
+
+function openConfig(){
+    const BrowserWindow = require('electron').remote.BrowserWindow;
+    let win = new BrowserWindow({
+        height: 400,
+        width: 300,
+        parent:require('electron').remote.getCurrentWindow(),
+        modal:true,
+        webPreferences: {
+            nodeIntegration: true
+        },
+        icon:iconPath
+    });
+
+    win.loadURL(url.format({ //2. Load HTML into new Window
+        pathname: path.join(__dirname,'configuracoes.html'),
+        protocol: 'file'
+    }));
+    win.once('ready-to-show',()=>{
+        win.show()
+    })
+    win.on('closed', function () {
+        // Remove a referência que criamos no começo do arquivo
+        win = null
+    });
 }
