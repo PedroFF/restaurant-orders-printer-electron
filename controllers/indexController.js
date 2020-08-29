@@ -60,7 +60,13 @@ $(document).ready(function () {
             console.log(error);
         });
     });
-    task.start();
+
+    if (checkApiAvailability()){
+        task.start();
+    } else {
+        //chamar alerta de bloqueio
+    }
+
     let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
     let orders = JSON.parse(orderRawData);
     generateOrderTable(orders.orders.sort(compareOrders))
@@ -74,6 +80,15 @@ function clearHistory() {
     $('#deleteModal').modal('toggle')
     generateOrderTable(file.orders)
 }
+function checkApiAvailability() {
+    let available = false;
+    axios.get(`${api_heroku_url}/availability`)
+        .then((response) => {
+            available = (response.status === 204);
+        });
+    return available;
+}
+
 function saveOrders(newOrders) {
     let rawdata = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
     let file = JSON.parse(rawdata);
