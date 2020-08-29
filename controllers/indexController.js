@@ -37,7 +37,7 @@ const orderFieldsPickup = {
 }
 let api_key = require(path.join(__dirname, '..', 'config.json')).API_KEY;
 
-$(document).ready(function () {
+$(document).ready(async function () {
     const configRestaurant = {
         headers: {
             'Authorization': token,
@@ -61,32 +61,40 @@ $(document).ready(function () {
         });
     });
 
-    if (checkApiAvailability()){
+    if (await checkApiAvailability()) {
         task.start();
+        let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
+        let orders = JSON.parse(orderRawData);
+        generateOrderTable(orders.orders.sort(compareOrders), false)
     } else {
-        //chamar alerta de bloqueio
+        task.stop();
+        generateOrderTable(null, true)
     }
 
-    let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
-    let orders = JSON.parse(orderRawData);
-    generateOrderTable(orders.orders.sort(compareOrders))
+
 });
 const fs = require('fs');
+
 function clearHistory() {
-    let file = {orders:[]}
+    let file = {orders: []}
     fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
         if (err) throw err;
     });
     $('#deleteModal').modal('toggle')
     generateOrderTable(file.orders)
 }
-function checkApiAvailability() {
-    let available = false;
-    axios.get(`${api_heroku_url}/availability`)
+
+async function checkApiAvailability() {
+    let available = false
+    await axios.get(`${api_heroku_url}/availability`)
         .then((response) => {
+            console.log(response.status)
+            console.log(response.status === 204)
             available = (response.status === 204);
+        }).catch((error)=>{
+            available = false
         });
-    return available;
+    return available
 }
 
 function saveOrders(newOrders) {
@@ -263,32 +271,40 @@ function generateItensTable(items) {
     return tbl.outerHTML.replace(/&nbsp;/g, ' ')
 }
 
-function generateOrderTable(orders) {
-    let table_list = document.getElementById('table_list')
-    table_list.innerHTML = ''
-    if (orders.length > 0) {
-        let tbl = document.createElement("table");
-        tbl.classList.add('table')
-        tbl.classList.add('table-sm')
-        let tblHead = ['Id', 'Nome do Cliente', 'Data', 'Opções']
-        generateTableHead(tbl, tblHead)
-        $.each(orders, function (key, value) {
-            let button = document.createElement("button")
-            button.innerText = 'Reimprimir'
-            button.addEventListener("click", function () {
-                createPrintHTMLById(value.id);
+function generateOrderTable(orders, unavailable = false) {
+    if (!unavailable) {
+        let table_list = document.getElementById('table_list')
+        table_list.innerHTML = ''
+        if (orders.length > 0) {
+            let tbl = document.createElement("table");
+            tbl.classList.add('table')
+            tbl.classList.add('table-sm')
+            let tblHead = ['Id', 'Nome do Cliente', 'Data', 'Opções']
+            generateTableHead(tbl, tblHead)
+            $.each(orders, function (key, value) {
+                let button = document.createElement("button")
+                button.innerText = 'Reimprimir'
+                button.addEventListener("click", function () {
+                    createPrintHTMLById(value.id);
+                });
+                button.classList.add('btn')
+                button.classList.add('btn-warning')
+                let dateAcceptedAt = formatDateTime.format(new Date(value.accepted_at))
+                let values = [value.id, `${value.client_first_name} ${value.client_last_name}`, dateAcceptedAt, button]
+                generateTable(tbl, values)
             });
-            button.classList.add('btn')
-            button.classList.add('btn-warning')
-            let dateAcceptedAt = formatDateTime.format(new Date(value.accepted_at))
-            let values = [value.id, `${value.client_first_name} ${value.client_last_name}`, dateAcceptedAt, button]
-            generateTable(tbl, values)
-        });
-        table_list.append(tbl)
+            table_list.append(tbl)
+        } else {
+            let center = document.createElement('center')
+            let spanText = document.createElement('span')
+            spanText.innerText = 'Nenhum Pedido Encontrado. Aprove-os no Aplicativo Restaurante no seu celular e eles aparecerão aqui!!!'
+            center.appendChild(spanText)
+            table_list.appendChild(center)
+        }
     } else {
         let center = document.createElement('center')
         let spanText = document.createElement('span')
-        spanText.innerText = 'Nenhum Pedido Encontrado. Aprove-os no Aplicativo Restaurante no seu celular e eles aparecerão aqui!!!'
+        spanText.innerText = 'Falha na autenticação. Verifique sua conexão com a internet. Caso a situação persista, entre em contato conosco.'
         center.appendChild(spanText)
         table_list.appendChild(center)
     }
@@ -327,24 +343,24 @@ function generateTable(table, data) {
     }
 }
 
-function openConfig(){
+function openConfig() {
     const BrowserWindow = require('electron').remote.BrowserWindow;
     let win = new BrowserWindow({
         height: 400,
         width: 300,
-        parent:require('electron').remote.getCurrentWindow(),
-        modal:true,
+        parent: require('electron').remote.getCurrentWindow(),
+        modal: true,
         webPreferences: {
             nodeIntegration: true
         },
-        icon:iconPath
+        icon: iconPath
     });
 
     win.loadURL(url.format({ //2. Load HTML into new Window
-        pathname: path.join(__dirname,'configuracoes.html'),
+        pathname: path.join(__dirname, 'configuracoes.html'),
         protocol: 'file'
     }));
-    win.once('ready-to-show',()=>{
+    win.once('ready-to-show', () => {
         win.show()
     })
     win.on('closed', function () {
