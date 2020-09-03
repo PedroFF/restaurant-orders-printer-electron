@@ -1,63 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
     <script>window.$ = window.jQuery = require('jquery');</script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <meta charset="UTF-8">
     <title>Pedido</title>
 
     <style type="text/css">
-        table {
-            font-family: Arial, Helvetica, sans-serif;
-            font-weight: bold;
-            font-size: 25px;
+        body {
+            font-family: "Lucida Console", Monaco, monospace;
         }
 
-        div {
-            font-family: Arial, Helvetica, sans-serif;
+        table {
+            font-size: 40px;
+            color: black;
             font-weight: bold;
-            font-size: 30px;
         }
+
+        h1 {
+            font-size: 50px;
+            color: black;
+        }
+
+        h2, h3 {
+            font-size: 40px;
+            color: black;
+        }
+        h5 {
+            font-size:30px;
+            color: black;
+        }
+
+
     </style>
 
 </head>
 
 <body>
-    <center>
-        <h1 class="restaurant_name">Nikao Burger</h1>
-        <h3 class="restaurant_street">Endereço: Rua Jovino Ribeiro, 145</h3>
-        <h3 class="restaurant_phone">Contato: +55 33 99839 2353</h3>
-    </center>
-    <br>
-    <h2 class="id">149742825</h2>
-    <br>
-    <h3 class="nomeCliente">Cliente: Wellerson Lima</h3>
-    <h3 class="client_phone">Contato: +5595991199450</h3>
-    <h3 class="client_address">Endereço: Rua Xândico Lima, 60, Boa Vista</h3>
-    <br>
-    <h3 class="type">Tipo de Entrega: Delivery</h3>
-    <h3>Forma de Pagamento: Dinheiro</h3>
-    <h3>Instruções para Entrega: Não Informado</h3>
-    <br>
-    <h3> Itens do Pedido: </h3>
-    <div class="table-responsive" id="table_space"><table class="table table-bordered table-sm"><thead><tr><th>Qtd.</th><th>Nome</th><th>Valor</th><th>Opções</th></tr><tr><td>2</td><td>Pizza Muçarela </td><td>R$ 19,00</td><td></td></tr><tr><td>1</td><td>X-Salada </td><td>R$ 6,00</td><td>CATUPIRY - R$ 2,00, CHEDDAR - R$ 3,00</td></tr></thead></table></div>
-    <div class ="total">Subtotal do Pedido: R$ 49,00</div>
-    <div class ="total">Taxa de Entrega: R$ 5,00</div>
-    <div class ="total">Total do Pedido: R$ 54,00</div>
-
-    <br>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
-        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
-        crossorigin="anonymous"></script>
+<center>
+    <h1 class="restaurant_name">Nikao Burger</h1>
+    <h3 class="restaurant_street">Endereço: Rua Jovino Ribeiro, 145</h3>
+    <h3 class="restaurant_phone">Contato: +55 33 99839 2353</h3>
+</center>
+<br>
+<br>
+<br>
+<h2 class="id">Id do Pedido: 149742825</h2>
+<h3 class="nomeCliente">Cliente: Wellerson Lima</h3>
+<h3 class="client_phone">Contato: +5595991199450</h3>
+<h3 class="client_address">Endereço: Rua Xândico Lima, 60, Boa Vista</h3>
+<br><br><br>
+<h3>Tipo de Entrega: Delivery</h3>
+<h3>Forma de Pagamento: Dinheiro</h3>
+<h3>Instruções para Entrega: Não Informado</h3>
+<br>
+<br>
+<br>
+<h3> Itens do Pedido: </h3>
+<div class="table-responsive" id="table_space"><table class="table table-sm"><thead><tr><th>Qtd.</th><th>Item</th><th>Valor</th></tr><tr><td>2</td><td>PIZZA MUÇARELA </td><td>R$ 19,00</td></tr><tr><td>1</td><td>X-SALADA </td><td>R$ 6,00</td></tr><tr><td></td><td>Catupiry</td><td>R$ 2,00</td></tr><tr><td></td><td>Cheddar</td><td>R$ 3,00</td></tr></thead></table></div>
+<br>
+<br>
+<h3>Subtotal do Pedido: R$ 49,00</h3>
+<h3>Taxa de Entrega: R$ 5,00</h3>
+<h1>Total do Pedido: R$ 54,00</h1>
+<br>
+<br>
+<center><h5>JPR - Soluções Tecnológicas</h5></center>
 </body>
 
 </html>

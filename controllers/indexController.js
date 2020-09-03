@@ -1,4 +1,5 @@
 const url = require("url");
+const ptp = require("pdf-to-printer");
 const path = require('path')
 const api_restaurant_url = require(path.join(__dirname, '..', 'config.json')).API_URL;
 const api_heroku_url = require(path.join(__dirname, '..', 'config.json')).API_HEROKU;
@@ -91,7 +92,7 @@ async function checkApiAvailability() {
             console.log(response.status)
             console.log(response.status === 204)
             available = (response.status === 204);
-        }).catch((error)=>{
+        }).catch((error) => {
             available = false
         });
     return available
@@ -181,11 +182,26 @@ function printOrder(order) {
             nodeIntegration: true
         }
     });
+    let printOptions = {
+        "printer": options.deviceName,
+        "unix": ["-o fit-to-page"],
+        "win32": ['-print-settings "fit"'],
+        "win64": ['-print-settings "fit"']
+    }
     win.loadURL('file://' + __dirname + '/pedido.html');
     win.webContents.on('did-finish-load', () => {
-        win.webContents.print(options, (success, errorType) => {
-            if (!success) console.log(errorType)
-        });
+        win.webContents.printToPDF({
+            marginsType: 1       }).then(data => {
+            const pdfPath = path.join(__dirname, '..', '..', 'temp.pdf')
+            fs.writeFileSync(pdfPath, data, (error) => {
+                if (error) console.error(error)
+            })
+            let copies = options.copies ? options.copies : 1
+            for (let i = 0; i < copies; i++) {
+                ptp.print(pdfPath, printOptions)
+            }
+
+        })
     });
 }
 
@@ -233,7 +249,8 @@ function createPrintHTMLPickup(order) {
         encoding: 'utf8',
         flag: 'r'
     })
-    result = ret.replace('%itensPedido%', generateItensTable(order['items']))
+    result = ret.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
+
     $.each(orderFieldsPickup, (key, value) => {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
@@ -253,20 +270,23 @@ function createPrintHTMLPickup(order) {
 function generateItensTable(items) {
     let tbl = document.createElement("table");
     tbl.classList.add('table')
-    tbl.classList.add('table-bordered')
     tbl.classList.add('table-sm')
-    let tblHead = ['Qtd.', 'Nome', 'Valor', 'Opções']
+    let tblHead = ['Qtd.', 'Item', 'Valor']
     generateTableHead(tbl, tblHead)
     $.each(items, function (key, value) {
+        let itemInstruction = value.instructions ? `(${value.instructions})` : ""
+        let itemPrice = formatCurrency.format(value.price)
+        let itemName = `${value.name} ${itemInstruction}`
+        let values = [value.quantity, itemName.toUpperCase(), itemPrice]
+        generateTable(tbl, values)
         let opt = "";
         for (let option of value.options) {
             let optPrice = formatCurrency.format(option.price)
             opt = opt === "" ? `${option.name} - ${optPrice}` : opt + ", " + `${option.name} - ${optPrice}`;
+            let optName = option.name.toString().toLowerCase();
+            let valuesOptions = ['', `${optName.charAt(0).toUpperCase() + optName.slice(1)}`, optPrice]
+            generateTable(tbl, valuesOptions)
         }
-        let itemInstruction = value.instructions ? `(${value.instructions})` : ""
-        let itemPrice = formatCurrency.format(value.price)
-        let values = [value.quantity, `${value.name} ${itemInstruction}`, itemPrice, opt]
-        generateTable(tbl, values)
     });
     return tbl.outerHTML.replace(/&nbsp;/g, ' ')
 }
@@ -346,8 +366,10 @@ function generateTable(table, data) {
 function openConfig() {
     const BrowserWindow = require('electron').remote.BrowserWindow;
     let win = new BrowserWindow({
-        height: 400,
-        width: 300,
+        height: 600,
+        width: 400,
+        maxHeight: 600,
+        maxWidth: 400,
         parent: require('electron').remote.getCurrentWindow(),
         modal: true,
         webPreferences: {

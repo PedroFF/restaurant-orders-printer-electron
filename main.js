@@ -25,7 +25,7 @@ app.on('ready', function () {
         webPreferences: {nodeIntegration: true},
         icon: __dirname + iconPath
     });
-    mainWindow.setMenuBarVisibility(true)
+    mainWindow.setMenuBarVisibility(false)
     // Depois apontamos a janela para o HTML que criamos anteriormente
     mainWindow.loadURL('file://' + __dirname + '/views/index.html');
     // Escutamos para quando a janela for fechada

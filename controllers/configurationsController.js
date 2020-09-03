@@ -29,10 +29,6 @@ function salvarConfig() {
         silent: 'true',
         printBackground: 'true',
         deviceName: document.getElementById('impressora').options[document.getElementById('impressora').selectedIndex].text,
-        color: 'false',
-        margin: {
-            marginType: 'printableArea'
-        },
         landscape: 'false',
         pagesPerSheet: 1,
         collate: false,
