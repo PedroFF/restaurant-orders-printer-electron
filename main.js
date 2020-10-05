@@ -25,6 +25,8 @@ app.on('ready', function () {
         webPreferences: {nodeIntegration: true},
         icon: __dirname + iconPath
     });
+    mainWindow.webContents.openDevTools();
+
     mainWindow.setMenuBarVisibility(false)
     // Depois apontamos a janela para o HTML que criamos anteriormente
     mainWindow.loadURL('file://' + __dirname + '/views/index.html');

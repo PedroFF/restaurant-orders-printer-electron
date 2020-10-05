@@ -1,6 +1,6 @@
 const url = require("url");
 const ptp = require("pdf-to-printer");
-const path = require('path')
+const path = require('path');
 const api_restaurant_url = require(path.join(__dirname, '..', 'config.json')).API_URL;
 const api_heroku_url = require(path.join(__dirname, '..', 'config.json')).API_HEROKU;
 const token = require(path.join(__dirname, '..', 'config.json')).token;
@@ -172,9 +172,9 @@ function compareOrders(a, b) {
 }
 
 function printOrder(order) {
-    createPrintHTML(order);
     let rawdata = fs.readFileSync(path.join(__dirname, '..', 'printconfig.json'));
     let options = JSON.parse(rawdata);
+    createPrintHTML(order, options.font.familyName);
     const electron = require('electron');
     const BrowserWindow = electron.remote.BrowserWindow;
     let win = new BrowserWindow({
@@ -205,21 +205,22 @@ function printOrder(order) {
     });
 }
 
-function createPrintHTML(order) {
+function createPrintHTML(order, fontFamily) {
     if (order.type === 'pickup') {
-        createPrintHTMLPickup(order)
+        createPrintHTMLPickup(order, fontFamily)
     } else {
-        createPrintHTMLDelivery(order)
+        createPrintHTMLDelivery(order, fontFamily)
     }
 }
 
-function createPrintHTMLDelivery(order) {
+function createPrintHTMLDelivery(order, fontFamily) {
     let result
     ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-delivery-modelo.html'), {
         encoding: 'utf8',
         flag: 'r'
     })
-    result = ret.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
+    result = ret.replace('%font%', fontFamily)
+    result = result.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
     $.each(orderFieldsDelivery, (key, value) => {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
@@ -243,13 +244,14 @@ function filterByItemType(obj) {
 
 }
 
-function createPrintHTMLPickup(order) {
+function createPrintHTMLPickup(order, familyName) {
     let result
     ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-pickup-modelo.html'), {
         encoding: 'utf8',
         flag: 'r'
     })
-    result = ret.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
+    result = ret.replace('%font%', familyName)
+    result = result.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
 
     $.each(orderFieldsPickup, (key, value) => {
         console.log(key + '=>' + value)
