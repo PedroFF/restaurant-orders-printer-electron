@@ -1,15 +1,15 @@
 {
   "name": "order-printer",
-  "version": "1.4.0",
+  "version": "1.6.0",
   "description": "",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "pack": "electron-builder --dir --ia32",
+    "dist": "electron-builder --ia32"
   },
   "build": {
-    "asar": "true",
+    "asar": "false",
     "productName": "Order Printer",
     "asarUnpack": [
       "./orders.json",

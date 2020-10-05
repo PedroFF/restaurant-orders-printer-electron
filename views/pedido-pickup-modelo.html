@@ -9,7 +9,20 @@
     <title>Pedido</title>
 
     <style type="text/css">
-        table td:nth-child(3){
+        @page {
+            size: 200mm 400mm;
+            margin: 0;
+        }
+
+        @media print {
+
+            body {
+                page-break-before: avoid;
+                page-break-inside: avoid;
+            }
+        }
+
+        table td:nth-child(3) {
             font-weight: bold;
         }
 
@@ -18,20 +31,26 @@
         }
 
         table {
-            font-size: 40px;
-            color: black;
+            font-size: 45px;
         }
+
         h1 {
-            font-size: 50px;
-            color: black;
+            font-size: 55px;
         }
-        h2, h3{
-            font-size: 40px;
-            color: black;
+
+        h2, h3 {
+            font-size: 45px;
+            font-weight: bold;
         }
+
         h5 {
-            font-size: 30px;
-            color: black;
+            font-size: 35px;
+            font-weight: bold;
+        }
+
+        .divisao {
+            font-size: 35px;
+            font-weight: bold;
         }
     </style>
 
@@ -43,20 +62,27 @@
     <h3 class="restaurant_street">Endereço: %enderecoRestaurante%</h3>
     <h3 class="restaurant_phone">Contato: %telefoneRestaurante%</h3>
 </center>
-<br><br><br>
+<br><br>
+<div class="divisao">============================================================</div>
+<br><br>
 <h2 class="id">Id do Pedido: %idPedido%</h2>
 <h3 class="nomeCliente">Cliente: %primeiroNomeCliente% %ultimoNomeCliente%</h3>
 <h3 class="client_phone">Contato: %telefoneCliente%</h3>
-<br><br><br>
+<br><br>
+<div class="divisao">============================================================</div>
+<br><br>
 <h3 class="type">Tipo de Entrega: Retirada No Local</h3>
 <h3>Forma de Pagamento: %tipoPagamento%</h3>
 <h3>Instruções de Entrega: %instrucaoEntrega%</h3>
-<br><br><br>
+<br><br>
+<div class="divisao">============================================================</div>
+<br><br>
 <h3> Itens do Pedido: </h3>
 <div class="table-responsive" id="table_space">
     %itensPedido%
 </div>
-<br>
+<br><br>
+<div class="divisao">============================================================</div>
 <br>
 <h1>Total do Pedido: %total%</h1>
 <br>

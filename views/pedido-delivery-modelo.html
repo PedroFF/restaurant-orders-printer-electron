@@ -9,6 +9,18 @@
     <title>Pedido</title>
 
     <style type="text/css">
+        @page {
+            size: 200mm 400mm;
+            margin: 0;
+        }
+
+        @media print {
+
+            body {
+                page-break-before: avoid;
+                page-break-inside: avoid;
+            }
+        }
         table td:nth-child(3){
             font-weight: bold;
         }
@@ -18,25 +30,24 @@
         }
 
         table {
-            font-size: 40px;
-            color: black;
-            font-weight: bold;
+            font-size: 45px;
         }
 
         h1 {
-            font-size: 50px;
-            color: black;
+            font-size: 55px;
         }
 
         h2, h3 {
-            font-size: 40px;
-            color: black;
-        }
-        h5 {
-            font-size:30px;
-            color: black;
+            font-size: 45px;
         }
 
+        h5 {
+            font-size:35px;
+        }
+        .divisao {
+            font-size: 35px;
+            font-weight: bold;
+        }
 
     </style>
 
@@ -50,28 +61,31 @@
 </center>
 <br>
 <br>
-<br>
+<div class="divisao">============================================================</div>
 <h2 class="id">Id do Pedido: %idPedido%</h2>
 <h3 class="nomeCliente">Cliente: %primeiroNomeCliente% %ultimoNomeCliente%</h3>
 <h3 class="client_phone">Contato: %telefoneCliente%</h3>
 <h3 class="client_address">Endereço: %enderecoCliente%</h3>
-<br><br><br>
+<br><br>
+<div class="divisao">============================================================</div>
 <h3>Tipo de Entrega: Delivery</h3>
 <h3>Forma de Pagamento: %tipoPagamento%</h3>
 <h3>Instruções para Entrega: %instrucaoEntrega%</h3>
-<br>
+<div class="divisao">============================================================</div>
 <br>
 <br>
 <h3> Itens do Pedido: </h3>
 <div class="table-responsive" id="table_space">%itensPedido%</div>
-<br>
-<br>
+<br><br>
+<div class="divisao">============================================================</div>
 <h3>Subtotal do Pedido: %subtotal%</h3>
 <h3>Taxa de Entrega: %totalEntrega%</h3>
 <h1>Total do Pedido: %total%</h1>
 <br>
 <br>
-<center><h5>JPR - Soluções Tecnológicas</h5></center>
+<center>
+    <h5>JPR - Soluções Tecnológicas</h5>
+</center>
 </body>
 
 </html>

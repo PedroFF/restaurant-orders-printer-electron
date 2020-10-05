@@ -183,15 +183,15 @@ function printOrder(order) {
         }
     });
     let printOptions = {
-        "printer": options.deviceName,
         "unix": ["-o fit-to-page"],
         "win32": ['-print-settings "fit"'],
-        "win64": ['-print-settings "fit"']
+        "printer": options.deviceName
     }
     win.loadURL('file://' + __dirname + '/pedido.html');
     win.webContents.on('did-finish-load', () => {
         win.webContents.printToPDF({
-            marginsType: 1       }).then(data => {
+            marginsType: 1
+        }).then(data => {
             const pdfPath = path.join(__dirname, '..', '..', 'temp.pdf')
             fs.writeFileSync(pdfPath, data, (error) => {
                 if (error) console.error(error)
@@ -266,7 +266,6 @@ function createPrintHTMLPickup(order, familyName) {
     let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
-    console.log(resultSave)
 }
 
 function generateItensTable(items) {
