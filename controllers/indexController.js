@@ -378,7 +378,7 @@ function openConfig() {
         },
         icon: iconPath
     });
-
+win.setMenuBarVisibility(false)
     win.loadURL(url.format({ //2. Load HTML into new Window
         pathname: path.join(__dirname, 'configuracoes.html'),
         protocol: 'file'
