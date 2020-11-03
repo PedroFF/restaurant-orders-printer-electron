@@ -19,15 +19,15 @@ app.on('ready', function () {
         height: 650,
         minWidth: 600,
         minHeight: 650,
-        maxWidth: 900,
-        maxHeight: 650,
-        maximizable:false,
+        /*maxWidth: 900,
+        maxHeight: 650,*/
+        maximizable:true,
         webPreferences: {nodeIntegration: true},
         icon: __dirname + iconPath
     });
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 
-    mainWindow.setMenuBarVisibility(false)
+    mainWindow.setMenuBarVisibility(true)
     // Depois apontamos a janela para o HTML que criamos anteriormente
     mainWindow.loadURL('file://' + __dirname + '/views/index.html');
     // Escutamos para quando a janela for fechada

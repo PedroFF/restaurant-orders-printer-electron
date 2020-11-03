@@ -1,5 +1,4 @@
 const url = require("url");
-const ptp = require("pdf-to-printer");
 const path = require('path');
 const api_restaurant_url = require(path.join(__dirname, '..', 'config.json')).API_URL;
 const api_heroku_url = require(path.join(__dirname, '..', 'config.json')).API_HEROKU;
@@ -37,7 +36,8 @@ const orderFieldsPickup = {
     '%instrucaoEntrega%': 'instructions'
 }
 let api_key = require(path.join(__dirname, '..', 'config.json')).API_KEY;
-
+const {exec} = require('child_process');
+const StringBuilder = require('node-stringbuilder');
 $(document).ready(async function () {
     const configRestaurant = {
         headers: {
@@ -73,7 +73,8 @@ $(document).ready(async function () {
     }
 
 
-});
+})
+;
 const fs = require('fs');
 
 function clearHistory() {
@@ -161,6 +162,7 @@ function createApiKey(data) {
 }
 
 function printOrders(orders) {
+    debugger;
     for (let order of orders) {
         printOrder(order)
     }
@@ -182,17 +184,20 @@ function printOrder(order) {
             nodeIntegration: true
         }
     });
-    let printOptions = {
-        "unix": ["-o fit-to-page"],
-        "win32": ['-print-settings "fit"'],
-        "printer": options.deviceName
+    let sizeOption = {
+        pageSize: {
+            width: 80000,
+            height: 80000
+        },
+        margins: {marginType: "custom", top: 0, bottom: 0, left: 0, right: 0}
     }
-    win.loadURL('file://' + __dirname + '/pedido.html');
+    /*win.loadURL('file://' + __dirname + '/pedido.txt');
+    win.once('ready-to-show', () => {
+        win.show()
+    })
     win.webContents.on('did-finish-load', () => {
-        win.webContents.printToPDF({
-            marginsType: 1
-        }).then(data => {
-            const pdfPath = path.join(__dirname, '..', '..', 'temp.pdf')
+        win.webContents.print(sizeOption).then(data => {
+            /*const pdfPath = path.join(__dirname, '..', '..', 'temp.pdf')
             fs.writeFileSync(pdfPath, data, (error) => {
                 if (error) console.error(error)
             })
@@ -200,27 +205,36 @@ function printOrder(order) {
             for (let i = 0; i < copies; i++) {
                 ptp.print(pdfPath, printOptions)
             }
-
+            if (!data.success) console.log(errorType)
         })
-    });
+
+    });*/
+    var filename = __dirname + '/pedido.txt';
+    exec(`Notepad /pt "${filename}" "${options.deviceName}"`, (err, stdout, stderr) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log(stdout);
+    })
 }
 
 function createPrintHTML(order, fontFamily) {
     if (order.type === 'pickup') {
-        createPrintHTMLPickup(order, fontFamily)
+        createPrintTXTPickup(order, fontFamily)
     } else {
-        createPrintHTMLDelivery(order, fontFamily)
+        createPrintTXTDelivery(order, fontFamily)
     }
 }
 
 function createPrintHTMLDelivery(order, fontFamily) {
     let result
-    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-delivery-modelo.html'), {
+    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-delivery-modelo.txt'), {
         encoding: 'utf8',
         flag: 'r'
     })
     result = ret.replace('%font%', fontFamily)
-    result = result.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
+    result = result.replace('%itensPedido%', generateTable(order['items'].filter(filterByItemType)))
     $.each(orderFieldsDelivery, (key, value) => {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
@@ -233,12 +247,36 @@ function createPrintHTMLDelivery(order, fontFamily) {
     result = result.replace('%total%', totalPrice)
     let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
     result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
-    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
+    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
     console.log(resultSave)
 }
-
+function createPrintTXTDelivery(order, fontFamily) {
+    let result
+    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-delivery-modelo.txt'), {
+        encoding: 'utf8',
+        flag: 'r'
+    })
+    result = ret.replace('%font%', fontFamily)
+    result = result.replace('%itensPedido%', generateItensTableTxT(order['items'].filter(filterByItemType)))
+    $.each(orderFieldsDelivery, (key, value) => {
+        console.log(key + '=>' + value)
+        result = result.replace(key, order[value] ? order[value] : 'Não Informado')
+    })
+    let payment = paymentType[order.payment] ? paymentType[order.payment] : order.payment
+    result = result.replace('%tipoPagamento%', payment)
+    let subTotalPrice = formatCurrency.format(order['sub_total_price'])
+    let totalPrice = formatCurrency.format(order['total_price'])
+    result = result.replace('%subtotal%', subTotalPrice)
+    result = result.replace('%total%', totalPrice)
+    let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
+    result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
+    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
+        if (err) return console.log(err);
+    });
+    console.log(resultSave)
+}
 function filterByItemType(obj) {
     return 'type' in obj && obj.type === 'item';
 
@@ -246,12 +284,37 @@ function filterByItemType(obj) {
 
 function createPrintHTMLPickup(order, familyName) {
     let result
-    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-pickup-modelo.html'), {
+    let stringBuilder = new StringBuilder();
+    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-pickup-modelo.txt'), {
         encoding: 'utf8',
         flag: 'r'
     })
     result = ret.replace('%font%', familyName)
     result = result.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
+
+    $.each(orderFieldsPickup, (key, value) => {
+        console.log(key + '=>' + value)
+        result = result.replace(key, order[value] ? order[value] : 'Não Informado')
+    })
+    let payment = paymentType[order.payment] ? paymentType[order.payment] : order.payment
+    result = result.replace('%tipoPagamento%', payment)
+    let subTotalPrice = formatCurrency.format(order['sub_total_price'])
+    let totalPrice = formatCurrency.format(order['total_price'])
+    result = result.replace('%subtotal%', subTotalPrice)
+    result = result.replace('%total%', totalPrice)
+    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
+        if (err) return console.log(err);
+    });
+}
+function createPrintTXTPickup(order, familyName) {
+    let result
+    let stringBuilder = new StringBuilder();
+    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-pickup-modelo.txt'), {
+        encoding: 'utf8',
+        flag: 'r'
+    })
+    result = ret.replace('%font%', familyName)
+    result = result.replace('%itensPedido%', generateItensTableTxT(order['items'].filter(filterByItemType)))
 
     $.each(orderFieldsPickup, (key, value) => {
         console.log(key + '=>' + value)
@@ -292,6 +355,7 @@ function generateItensTable(items) {
     return tbl.outerHTML.replace(/&nbsp;/g, ' ')
 }
 
+
 function generateOrderTable(orders, unavailable = false) {
     if (!unavailable) {
         let table_list = document.getElementById('table_list')
@@ -305,7 +369,7 @@ function generateOrderTable(orders, unavailable = false) {
             $.each(orders, function (key, value) {
                 let button = document.createElement("button")
                 button.innerText = 'Reimprimir'
-                button.addEventListener("click", function () {
+                button.addEventListener("click", async function () {
                     createPrintHTMLById(value.id);
                 });
                 button.classList.add('btn')
@@ -331,7 +395,7 @@ function generateOrderTable(orders, unavailable = false) {
     }
 }
 
-function createPrintHTMLById(id) {
+async function createPrintHTMLById(id) {
     const fs = require('fs');
     let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
     let orders = JSON.parse(orderRawData);
@@ -350,6 +414,41 @@ function generateTableHead(table, data) {
     }
 }
 
+function generateItensTableTxT(items) {
+    let tblHead = [{text: 'Qtd', limit: 3}, {text: 'Item', limit: 17}, {text: 'Valor', limit: 6}]
+    let stringBuilder = new StringBuilder();
+    stringBuilder = generateTableTxt(stringBuilder, tblHead);
+    let itemsInstructions = [];
+    $.each(items, function (key, value) {
+        let itemInstruction = value.instructions ? `(${value.instructions})` : ""
+        if (itemInstruction) {
+            itemsInstructions.push(`*${value.name} ${itemInstruction}`)
+        }
+        let values = [{text: value.quantity, limit: 3}, {text: value.name.toUpperCase(), limit: 17}, {
+            text: value.price.toFixed(2).replace(".", ","),
+            limit: 6
+        }]
+        stringBuilder = generateTableTxt(stringBuilder, values)
+        for (let option of value.options) {
+            let optName = option.name.toString().toLowerCase();
+            let valuesOptions = [{text: '-->', limit: 3}, {
+                text: `${optName.charAt(0).toUpperCase() + optName.slice(1)}`,
+                limit: 17
+            }, {text: option.price.toFixed(2).replace(".", ","), limit: 6}]
+            stringBuilder = generateTableTxt(stringBuilder, valuesOptions)
+        }
+    });
+    for (let i = 0; i < itemsInstructions.length; i++) {
+        if (i === itemsInstructions.length - 1) {
+            stringBuilder.append(`${text}`)
+        } else {
+            stringBuilder.append(`${text}\n`)
+        }
+    }
+    return stringBuilder.toString();
+
+}
+
 function generateTable(table, data) {
     let row = table.insertRow();
     for (element of data) {
@@ -362,6 +461,36 @@ function generateTable(table, data) {
             cell.appendChild(text);
         }
     }
+}
+
+function generateTableTxt(stringBuilder, data) {
+    for (let i = 0; i < data.length; i++) {
+        text = completa(data[i].text, ' ', data[i].limit)
+        if (i === data.length - 1) {
+            stringBuilder.append(`|${text}|\n`)
+        } else {
+            stringBuilder.append("|").append(text)
+        }
+    }
+    return stringBuilder;
+}
+
+function completa(valor, caracter, limite, esquerda = false) {
+    if (valor) {
+        let stringValor = valor.toString();
+        let tamanhoValor = stringValor.length;
+        if (tamanhoValor < limite) {
+            for (let i = 0; i < limite - tamanhoValor; i++) {
+                if (esquerda)
+                    valor = caracter + valor;
+                else
+                    valor += caracter;
+            }
+        } else {
+            valor = stringValor.substring(0, limite);
+        }
+    }
+    return valor;
 }
 
 function openConfig() {
@@ -378,7 +507,7 @@ function openConfig() {
         },
         icon: iconPath
     });
-win.setMenuBarVisibility(false)
+    win.setMenuBarVisibility(false)
     win.loadURL(url.format({ //2. Load HTML into new Window
         pathname: path.join(__dirname, 'configuracoes.html'),
         protocol: 'file'

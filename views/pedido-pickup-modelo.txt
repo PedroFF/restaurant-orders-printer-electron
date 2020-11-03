@@ -1,0 +1,20 @@
+%nomeRestaurante%
+
+==================================
+Id do Pedido: %idPedido%
+Cliente: %primeiroNomeCliente% %ultimoNomeCliente%
+Contato: %telefoneCliente%
+
+==================================
+Tipo de Entrega: Retirada No Local
+Forma de Pagamento: %tipoPagamento%
+Instruções de Entrega: %instrucaoEntrega%
+
+==================================
+Itens do Pedido:
+%itensPedido%
+
+==================================
+Total do Pedido: %total%
+
+<JPR - Soluções Tecnológicas>

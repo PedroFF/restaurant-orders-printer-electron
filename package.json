@@ -1,12 +1,12 @@
 {
   "name": "order-printer",
-  "version": "1.6.0",
+  "version": "1.7.0-preview",
   "description": "",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "pack": "electron-builder --dir --ia32",
-    "dist": "electron-builder --ia32"
+    "pack": "electron-builder --dir --x64",
+    "dist": "electron-builder --x64"
   },
   "build": {
     "asar": "false",
@@ -39,6 +39,7 @@
     "jquery": "^3.5.1",
     "jspdf": "^2.1.0",
     "node-cron": "^2.0.3",
-    "pdf-to-printer": "^1.4.1"
+    "node-powershell": "^4.0.0",
+    "node-stringbuilder": "^2.2.4"
   }
 }

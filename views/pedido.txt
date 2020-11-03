@@ -1,0 +1,29 @@
+Nikao Burger
+Endereço: Rua Jovino Ribeiro, 145
+Contato: +55 33 99839 2353
+
+==================================
+Id do Pedido: 177633199
+Cliente: Pedro Freitas
+Contato: +5532999999999
+Endereço: rua do imperador nº36, as, condomínio Bosque Imperial
+
+==================================
+Tipo de Entrega: Delivery
+Forma de Pagamento: Dinheiro
+Instruções para Entrega: Não Informado
+
+==================================
+Itens do Pedido:
+|Qtd|Item             |Valor |
+|1  |X-SALADA         |6,00  |
+|-->|Catupiry         |2,00  |
+|-->|Cheddar          |3,00  |
+
+
+==================================
+Subtotal do Pedido: R$ 11,00
+Taxa de Entrega: R$ 5,00
+Total do Pedido: R$ 16,00
+
+<JPR - Soluções Tecnológicas>

@@ -1,1 +1,18 @@
-{"silent":"true","printBackground":"true","deviceName":"Microsoft Print to PDF","landscape":"false","pagesPerSheet":1,"collate":false,"copies":1,"font":{"displayName":"Arial","familyName":" \"Arial\", Helvetica, sans-serif"}}
+{
+  "silent": "true",
+  "printBackground": "true",
+  "deviceName": "Microsoft Print to PDF",
+  "landscape": "false",
+  "pagesPerSheet": 1,
+  "collate": false,
+  "copies": 1,
+  "margins": "printableArea",
+  "pageSize": {
+    "width": 40000,
+    "height": 80000
+  },
+  "font": {
+    "displayName": "Arial",
+    "familyName": " \"Arial\", Helvetica, sans-serif"
+  }
+}

@@ -1,0 +1,25 @@
+%nomeRestaurante%
+Endereço: %enderecoRestaurante%
+Contato: %telefoneRestaurante%
+
+==================================
+Id do Pedido: %idPedido%
+Cliente: %primeiroNomeCliente% %ultimoNomeCliente%
+Contato: %telefoneCliente%
+Endereço: %enderecoCliente%
+
+==================================
+Tipo de Entrega: Delivery
+Forma de Pagamento: %tipoPagamento%
+Instruções para Entrega: %instrucaoEntrega%
+
+==================================
+Itens do Pedido:
+%itensPedido%
+
+==================================
+Subtotal do Pedido: %subtotal%
+Taxa de Entrega: %totalEntrega%
+Total do Pedido: %total%
+
+<JPR - Soluções Tecnológicas>
