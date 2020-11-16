@@ -7,6 +7,14 @@ const axios = require('axios');
 const agenda = require('node-cron');
 const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
 const formatDateTime = new Intl.DateTimeFormat('pt', {year: 'numeric', month: '2-digit', day: '2-digit'})
+const formatTime = new Intl.DateTimeFormat('pt', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric'
+});
 var iconPath = path.join(__dirname, '..', 'icon.ico');
 const orderFieldsDelivery = {
     '%nomeRestaurante%': 'restaurant_name',
@@ -176,8 +184,8 @@ function compareOrders(a, b) {
 function printOrder(order) {
     let rawdata = fs.readFileSync(path.join(__dirname, '..', 'printconfig.json'));
     let options = JSON.parse(rawdata);
-    createPrintHTML(order, options.font.familyName);
-    const electron = require('electron');
+    createPrintHTML(order);
+    /*const electron = require('electron');
     const BrowserWindow = electron.remote.BrowserWindow;
     let win = new BrowserWindow({
         width: 300, show: false, webPreferences: {
@@ -191,7 +199,7 @@ function printOrder(order) {
         },
         margins: {marginType: "custom", top: 0, bottom: 0, left: 0, right: 0}
     }
-    /*win.loadURL('file://' + __dirname + '/pedido.txt');
+    win.loadURL('file://' + __dirname + '/pedido.txt');
     win.once('ready-to-show', () => {
         win.show()
     })
@@ -210,20 +218,23 @@ function printOrder(order) {
 
     });*/
     var filename = __dirname + '/pedido.txt';
-    exec(`Notepad /pt "${filename}" "${options.deviceName}"`, (err, stdout, stderr) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        console.log(stdout);
-    })
+    let copies = options.copies ? options.copies : 1
+    for (let i = 0; i < copies; i++) {
+        exec(`Notepad /pt "${filename}" "${options.deviceName}"`, (err, stdout, stderr) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            console.log(stdout);
+        })
+    }
 }
 
-function createPrintHTML(order, fontFamily) {
+function createPrintHTML(order) {
     if (order.type === 'pickup') {
-        createPrintTXTPickup(order, fontFamily)
+        createPrintTXTPickup(order)
     } else {
-        createPrintTXTDelivery(order, fontFamily)
+        createPrintTXTDelivery(order)
     }
 }
 
@@ -252,14 +263,15 @@ function createPrintHTMLDelivery(order, fontFamily) {
     });
     console.log(resultSave)
 }
-function createPrintTXTDelivery(order, fontFamily) {
+
+function createPrintTXTDelivery(order) {
     let result
     ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-delivery-modelo.txt'), {
         encoding: 'utf8',
         flag: 'r'
     })
-    result = ret.replace('%font%', fontFamily)
-    result = result.replace('%itensPedido%', generateItensTableTxT(order['items'].filter(filterByItemType)))
+    result = ret.replace('%itensPedido%', generateItensTableTxT(order['items'].filter(filterByItemType)))
+    result = result.replace('%horaImpressao%', formatTime.format(new Date()));
     $.each(orderFieldsDelivery, (key, value) => {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
@@ -277,6 +289,7 @@ function createPrintTXTDelivery(order, fontFamily) {
     });
     console.log(resultSave)
 }
+
 function filterByItemType(obj) {
     return 'type' in obj && obj.type === 'item';
 
@@ -284,7 +297,6 @@ function filterByItemType(obj) {
 
 function createPrintHTMLPickup(order, familyName) {
     let result
-    let stringBuilder = new StringBuilder();
     ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-pickup-modelo.txt'), {
         encoding: 'utf8',
         flag: 'r'
@@ -306,16 +318,15 @@ function createPrintHTMLPickup(order, familyName) {
         if (err) return console.log(err);
     });
 }
-function createPrintTXTPickup(order, familyName) {
+
+function createPrintTXTPickup(order) {
     let result
-    let stringBuilder = new StringBuilder();
     ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-pickup-modelo.txt'), {
         encoding: 'utf8',
         flag: 'r'
     })
-    result = ret.replace('%font%', familyName)
-    result = result.replace('%itensPedido%', generateItensTableTxT(order['items'].filter(filterByItemType)))
-
+    result = ret.replace('%itensPedido%', generateItensTableTxT(order['items'].filter(filterByItemType)))
+    result = result.replace('%horaImpressao%', formatTime.format(new Date()));
     $.each(orderFieldsPickup, (key, value) => {
         console.log(key + '=>' + value)
         result = result.replace(key, order[value] ? order[value] : 'Não Informado')
@@ -326,7 +337,7 @@ function createPrintTXTPickup(order, familyName) {
     let totalPrice = formatCurrency.format(order['total_price'])
     result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
-    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
+    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
         if (err) return console.log(err);
     });
 }
@@ -415,7 +426,7 @@ function generateTableHead(table, data) {
 }
 
 function generateItensTableTxT(items) {
-    let tblHead = [{text: 'Qtd', limit: 3}, {text: 'Item', limit: 17}, {text: 'Valor', limit: 6}]
+    let tblHead = [{text: 'Qtd', limit: 3}, {text: 'Item', limit: 25}, {text: 'Valor', limit: 6}]
     let stringBuilder = new StringBuilder();
     stringBuilder = generateTableTxt(stringBuilder, tblHead);
     let itemsInstructions = [];
@@ -424,7 +435,7 @@ function generateItensTableTxT(items) {
         if (itemInstruction) {
             itemsInstructions.push(`*${value.name} ${itemInstruction}`)
         }
-        let values = [{text: value.quantity, limit: 3}, {text: value.name.toUpperCase(), limit: 17}, {
+        let values = [{text: value.quantity, limit: 3}, {text: value.name.toUpperCase(), limit: 25}, {
             text: value.price.toFixed(2).replace(".", ","),
             limit: 6
         }]
@@ -433,7 +444,7 @@ function generateItensTableTxT(items) {
             let optName = option.name.toString().toLowerCase();
             let valuesOptions = [{text: '-->', limit: 3}, {
                 text: `${optName.charAt(0).toUpperCase() + optName.slice(1)}`,
-                limit: 17
+                limit: 25
             }, {text: option.price.toFixed(2).replace(".", ","), limit: 6}]
             stringBuilder = generateTableTxt(stringBuilder, valuesOptions)
         }

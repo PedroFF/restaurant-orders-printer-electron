@@ -16,9 +16,9 @@ $(document).ready(function () {
         $('#impressora').append($("<option></option>").attr("value", valor.displayName).text(valor.displayName));
     });
 
-    $.each(fonts, function (id, valor) {
+  /*  $.each(fonts, function (id, valor) {
         $('#fonte').append($("<option></option>").attr("value", id).text(valor.displayName));
-    });
+    });*/
     carregaConfig()
 })
 function getKeyByValue(obj, val) {
@@ -30,7 +30,7 @@ function carregaConfig() {
     let rawdata = fs.readFileSync(path.join(__dirname, '..', 'printconfig.json'));
     let options = JSON.parse(rawdata);
     $("#impressora").val(options.deviceName).change()
-    $("#fonte").val(getKeyByValue(fonts, options.font.displayName)).change()
+    //$("#fonte").val(getKeyByValue(fonts, options.font.displayName)).change()
     $('#vias').val(options.copies)
     let buffer = fs.readFileSync(path.join(__dirname, '..', 'config.json'));
     let config = JSON.parse(buffer);
@@ -48,7 +48,7 @@ function salvarConfig() {
         pagesPerSheet: 1,
         collate: false,
         copies: Number(document.getElementById('vias').value),
-        font: fonts[document.getElementById('fonte').options[document.getElementById('fonte').selectedIndex].value]
+        //font: fonts[document.getElementById('fonte').options[document.getElementById('fonte').selectedIndex].value]
     }
 
     let data = JSON.stringify(options);

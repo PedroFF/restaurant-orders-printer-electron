@@ -3,7 +3,7 @@ const url = require("url");
 const path = require('path')
 // Módulo utilizado para controlar o ciclo de vida da aplicação
 const app = electron.app;
-
+const development = false;
 // Módulo para criar uma janela nativa do seu sistema operacional 
 const BrowserWindow = electron.BrowserWindow;
 
@@ -19,15 +19,15 @@ app.on('ready', function () {
         height: 650,
         minWidth: 600,
         minHeight: 650,
-        /*maxWidth: 900,
-        maxHeight: 650,*/
-        maximizable:true,
+        maxWidth: 900,
+        maxHeight: 650,
+        maximizable:development,
         webPreferences: {nodeIntegration: true},
         icon: __dirname + iconPath
     });
     //mainWindow.webContents.openDevTools();
 
-    mainWindow.setMenuBarVisibility(true)
+    mainWindow.setMenuBarVisibility(development)
     // Depois apontamos a janela para o HTML que criamos anteriormente
     mainWindow.loadURL('file://' + __dirname + '/views/index.html');
     // Escutamos para quando a janela for fechada

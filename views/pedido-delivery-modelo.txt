@@ -7,7 +7,7 @@ Id do Pedido: %idPedido%
 Cliente: %primeiroNomeCliente% %ultimoNomeCliente%
 Contato: %telefoneCliente%
 Endereço: %enderecoCliente%
-
+Horário da Impressão: %horaImpressao%
 ==================================
 Tipo de Entrega: Delivery
 Forma de Pagamento: %tipoPagamento%

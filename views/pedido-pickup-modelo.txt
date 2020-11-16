@@ -1,10 +1,12 @@
 %nomeRestaurante%
+Endereço: %enderecoRestaurante%
+Contato: %telefoneRestaurante%
 
 ==================================
 Id do Pedido: %idPedido%
 Cliente: %primeiroNomeCliente% %ultimoNomeCliente%
 Contato: %telefoneCliente%
-
+Horário da Impressão: %horaImpressao%
 ==================================
 Tipo de Entrega: Retirada No Local
 Forma de Pagamento: %tipoPagamento%
