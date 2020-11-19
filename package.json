@@ -5,8 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "pack": "electron-builder --dir --x64",
-    "dist": "electron-builder --x64"
+    "pack": "electron-builder --dir --ia32",
+    "dist": "electron-builder --ia32"
   },
   "build": {
     "asar": "false",
