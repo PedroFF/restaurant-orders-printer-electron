@@ -1,28 +1,30 @@
-Açaí do Nando
-Endereço: Zulmiro Gomes da Silva, 828
-Contato: +55 51 98529 9741
+Nikao Burger
+Endereço: Rua Jovino Ribeiro, 145
+Contato: +55 33 99839 2353
 
 ==================================
-Id do Pedido: 186609834
-Cliente: ORGANIZA TESTE
-Contato: +5532995852546
-Horário da Impressão: 16/11/2020 03:53:37
+Id do Pedido: 193784074
+Cliente: João Paulo Dias
+Contato: +5524981552606
+Endereço: Rua Américo Lobo, 251, Casa 1, Bairu, Juiz de Fora
+Horário da Impressão: 27/11/2020 22:13:59
 ==================================
-Tipo de Entrega: Retirada No Local
+Tipo de Entrega: Delivery
 Forma de Pagamento: Cartão de débito ou crédito
-Instruções de Entrega: Não Informado
+Instruções para Entrega: TeSTE de obs
 
 ==================================
 Itens do Pedido:
 |Qtd|Item                     |Valor |
-|1  |BARCA 1,5 LITRO          |50,00 |
-|-->|Cobertura de caramelo    |0,00  |
-|-->|Cobertura de chocolate   |0,00  |
-|-->|Cobertura de morango     |0,00  |
-|-->|Coco ralado              |0,00  |
+|1  |X-BURGER(Com bastante que|5,00  |
+|   |ijo)                     |      |
+|-->|Grande                   |2,00  |
+|-->|Catupiry                 |2,00  |
 
 
 ==================================
-Total do Pedido: R$ 45,00
+Subtotal do Pedido: R$ 9,00
+Taxa de Entrega: R$ 5,00
+Total do Pedido: R$ 14,00
 
 <JPR - Soluções Tecnológicas>

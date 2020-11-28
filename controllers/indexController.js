@@ -5,8 +5,8 @@ const api_heroku_url = require(path.join(__dirname, '..', 'config.json')).API_HE
 const token = require(path.join(__dirname, '..', 'config.json')).token;
 const axios = require('axios');
 const agenda = require('node-cron');
-const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
-const formatDateTime = new Intl.DateTimeFormat('pt', {year: 'numeric', month: '2-digit', day: '2-digit'})
+const formatCurrency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+const formatDateTime = new Intl.DateTimeFormat('pt', { year: 'numeric', month: '2-digit', day: '2-digit' })
 const formatTime = new Intl.DateTimeFormat('pt', {
     year: 'numeric',
     month: '2-digit',
@@ -44,8 +44,8 @@ const orderFieldsPickup = {
     '%instrucaoEntrega%': 'instructions'
 }
 let api_key = require(path.join(__dirname, '..', 'config.json')).API_KEY;
-const {exec} = require('child_process');
-const StringBuilder = require('node-stringbuilder');
+const { exec } = require('child_process');
+const StringBuilder = require("string-builder");
 $(document).ready(async function () {
     const configRestaurant = {
         headers: {
@@ -82,11 +82,11 @@ $(document).ready(async function () {
 
 
 })
-;
+    ;
 const fs = require('fs');
 
 function clearHistory() {
-    let file = {orders: []}
+    let file = { orders: [] }
     fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
         if (err) throw err;
     });
@@ -123,15 +123,15 @@ function saveOrders(newOrders) {
 function sendToAPI(orders) {
     if (orders && orders.length > 0) {
         verifyKey(orders[0]).then(() => {
-            const options = {headers: {'x-access-token': api_key}}
+            const options = { headers: { 'x-access-token': api_key } }
             for (order of orders) {
                 axios.post(
                     `${api_heroku_url}restaurants/orders`,
                     order,
                     options)
                     .then(() => {
-                            console.log('funfou');
-                        }
+                        console.log('funfou');
+                    }
                     )
                     .catch((error) => {
                         console.log(error.toJSON());
@@ -160,7 +160,7 @@ async function verifyKey(order) {
 function createApiKey(data) {
     let rawdata = fs.readFileSync(path.join(__dirname, '..', 'config.json'));
     let config = JSON.parse(rawdata);
-    Object.assign(config, {API_KEY: data.accessToken});
+    Object.assign(config, { API_KEY: data.accessToken });
     api_key = data.accessToken;
     let result = fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
         if (err) throw err;
@@ -426,36 +426,26 @@ function generateTableHead(table, data) {
 }
 
 function generateItensTableTxT(items) {
-    let tblHead = [{text: 'Qtd', limit: 3}, {text: 'Item', limit: 25}, {text: 'Valor', limit: 6}]
+    let tblHead = [{ text: 'Qtd', limit: 3 }, { text: 'Item', limit: 25 }, { text: 'Valor', limit: 6 }]
+    debugger;
     let stringBuilder = new StringBuilder();
     stringBuilder = generateTableTxt(stringBuilder, tblHead);
-    let itemsInstructions = [];
     $.each(items, function (key, value) {
         let itemInstruction = value.instructions ? `(${value.instructions})` : ""
-        if (itemInstruction) {
-            itemsInstructions.push(`*${value.name} ${itemInstruction}`)
-        }
-        let values = [{text: value.quantity, limit: 3}, {text: value.name.toUpperCase(), limit: 25}, {
+        let values = [{ text: value.quantity, limit: 3 }, { text: value.name.toUpperCase()+`${itemInstruction}`, limit: 25 }, {
             text: value.price.toFixed(2).replace(".", ","),
             limit: 6
         }]
         stringBuilder = generateTableTxt(stringBuilder, values)
         for (let option of value.options) {
             let optName = option.name.toString().toLowerCase();
-            let valuesOptions = [{text: '-->', limit: 3}, {
+            let valuesOptions = [{ text: '-->', limit: 3 }, {
                 text: `${optName.charAt(0).toUpperCase() + optName.slice(1)}`,
                 limit: 25
-            }, {text: option.price.toFixed(2).replace(".", ","), limit: 6}]
+            }, { text: option.price.toFixed(2).replace(".", ","), limit: 6 }]
             stringBuilder = generateTableTxt(stringBuilder, valuesOptions)
         }
     });
-    for (let i = 0; i < itemsInstructions.length; i++) {
-        if (i === itemsInstructions.length - 1) {
-            stringBuilder.append(`${text}`)
-        } else {
-            stringBuilder.append(`${text}\n`)
-        }
-    }
     return stringBuilder.toString();
 
 }
@@ -469,24 +459,41 @@ function generateTable(table, data) {
         } else {
             let cell = row.insertCell();
             let text = document.createTextNode(element);
+            if (text.length > 5) {
+                console.log('Funfou');
+            }
+            console.log('Rian');
             cell.appendChild(text);
         }
     }
 }
 
 function generateTableTxt(stringBuilder, data) {
+    let rest = '';
+
     for (let i = 0; i < data.length; i++) {
-        text = completa(data[i].text, ' ', data[i].limit)
+        let {valor, restante} = completa(data[i].text, ' ', data[i].limit)
+        if (i === 1 && restante) {
+            rest = restante;
+        }
         if (i === data.length - 1) {
-            stringBuilder.append(`|${text}|\n`)
+            stringBuilder.append(`|${valor}|\n`)
+            debugger;
+            while (rest) {
+                let{valor,restante} = completa(rest, ' ',data[1].limit);
+                stringBuilder.append(`|   |${valor}|      |\n`);
+                rest = restante;
+            }
         } else {
-            stringBuilder.append("|").append(text)
+            stringBuilder.append("|").append(valor)
         }
     }
     return stringBuilder;
 }
 
 function completa(valor, caracter, limite, esquerda = false) {
+    debugger;
+    let restante = '';
     if (valor) {
         let stringValor = valor.toString();
         let tamanhoValor = stringValor.length;
@@ -499,9 +506,10 @@ function completa(valor, caracter, limite, esquerda = false) {
             }
         } else {
             valor = stringValor.substring(0, limite);
+            restante = stringValor.substring(limite, tamanhoValor);
         }
     }
-    return valor;
+    return { "valor": valor, "restante": restante };
 }
 
 function openConfig() {
