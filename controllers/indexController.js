@@ -5,8 +5,8 @@ const api_heroku_url = require(path.join(__dirname, '..', 'config.json')).API_HE
 const token = require(path.join(__dirname, '..', 'config.json')).token;
 const axios = require('axios');
 const agenda = require('node-cron');
-const formatCurrency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-const formatDateTime = new Intl.DateTimeFormat('pt', { year: 'numeric', month: '2-digit', day: '2-digit' })
+const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
+const formatDateTime = new Intl.DateTimeFormat('pt', {year: 'numeric', month: '2-digit', day: '2-digit'})
 const formatTime = new Intl.DateTimeFormat('pt', {
     year: 'numeric',
     month: '2-digit',
@@ -43,8 +43,9 @@ const orderFieldsPickup = {
     '%tipoEntrega%': 'type',
     '%instrucaoEntrega%': 'instructions'
 }
+const fs = require('fs');
 let api_key = require(path.join(__dirname, '..', 'config.json')).API_KEY;
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 const StringBuilder = require("string-builder");
 $(document).ready(async function () {
     const configRestaurant = {
@@ -65,30 +66,37 @@ $(document).ready(async function () {
             saveOrders(newOrders.data.orders);
             sendToAPI(newOrders.data.orders);
         }).catch((error) => {
-            console.log('DEU RUIM');
-            console.log(error);
+            saveLog(JSON.stringify(error))
         });
     });
 
     if (await checkApiAvailability()) {
         task.start();
-        let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
-        let orders = JSON.parse(orderRawData);
-        generateOrderTable(orders.orders.sort(compareOrders), false)
-    } else {
+        try{
+            let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
+            let orders = JSON.parse(orderRawData);
+            generateOrderTable(orders.orders.sort(compareOrders), false)
+        }catch (e){
+            saveLog(JSON.stringify(e))
+            let file = {orders: []}
+            fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
+                if (err) saveLog(JSON.stringify(err))
+            });
+            generateOrderTable(file.orders)
+        }} else {
         task.stop();
         generateOrderTable(null, true)
     }
 
 
 })
-    ;
-const fs = require('fs');
+;
+
 
 function clearHistory() {
-    let file = { orders: [] }
+    let file = {orders: []}
     fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
-        if (err) throw err;
+        if (err) saveLog(JSON.stringify(err))
     });
     $('#deleteModal').modal('toggle')
     generateOrderTable(file.orders)
@@ -114,7 +122,7 @@ function saveOrders(newOrders) {
         file.orders.push(order);
     }
     let result = fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
-        if (err) throw err;
+        if (err) saveLog(JSON.stringify(err))
     });
     console.log(result)
     generateOrderTable(file.orders.sort(compareOrders))
@@ -123,18 +131,18 @@ function saveOrders(newOrders) {
 function sendToAPI(orders) {
     if (orders && orders.length > 0) {
         verifyKey(orders[0]).then(() => {
-            const options = { headers: { 'x-access-token': api_key } }
+            const options = {headers: {'x-access-token': api_key}}
             for (order of orders) {
                 axios.post(
                     `${api_heroku_url}restaurants/orders`,
                     order,
                     options)
                     .then(() => {
-                        console.log('funfou');
-                    }
+                            console.log('funfou');
+                        }
                     )
                     .catch((error) => {
-                        console.log(error.toJSON());
+                        saveLog(JSON.stringify(error))
                     });
             }
         });
@@ -152,7 +160,7 @@ async function verifyKey(order) {
                 createApiKey(response.data);
             })
             .catch((error) => {
-                console.log(error.toJSON());
+               saveLog(JSON.stringify(error))
             });
     }
 }
@@ -160,10 +168,10 @@ async function verifyKey(order) {
 function createApiKey(data) {
     let rawdata = fs.readFileSync(path.join(__dirname, '..', 'config.json'));
     let config = JSON.parse(rawdata);
-    Object.assign(config, { API_KEY: data.accessToken });
+    Object.assign(config, {API_KEY: data.accessToken});
     api_key = data.accessToken;
     let result = fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
-        if (err) throw err;
+        if (err) saveLog(JSON.stringify(err))
     });
     console.log(result)
     console.log(__dirname)
@@ -185,44 +193,12 @@ function printOrder(order) {
     let rawdata = fs.readFileSync(path.join(__dirname, '..', 'printconfig.json'));
     let options = JSON.parse(rawdata);
     createPrintHTML(order);
-    /*const electron = require('electron');
-    const BrowserWindow = electron.remote.BrowserWindow;
-    let win = new BrowserWindow({
-        width: 300, show: false, webPreferences: {
-            nodeIntegration: true
-        }
-    });
-    let sizeOption = {
-        pageSize: {
-            width: 80000,
-            height: 80000
-        },
-        margins: {marginType: "custom", top: 0, bottom: 0, left: 0, right: 0}
-    }
-    win.loadURL('file://' + __dirname + '/pedido.txt');
-    win.once('ready-to-show', () => {
-        win.show()
-    })
-    win.webContents.on('did-finish-load', () => {
-        win.webContents.print(sizeOption).then(data => {
-            /*const pdfPath = path.join(__dirname, '..', '..', 'temp.pdf')
-            fs.writeFileSync(pdfPath, data, (error) => {
-                if (error) console.error(error)
-            })
-            let copies = options.copies ? options.copies : 1
-            for (let i = 0; i < copies; i++) {
-                ptp.print(pdfPath, printOptions)
-            }
-            if (!data.success) console.log(errorType)
-        })
-
-    });*/
     var filename = __dirname + '/pedido.txt';
     let copies = options.copies ? options.copies : 1
     for (let i = 0; i < copies; i++) {
         exec(`Notepad /pt "${filename}" "${options.deviceName}"`, (err, stdout, stderr) => {
             if (err) {
-                console.error(err);
+                if (err) saveLog(JSON.stringify(err))
                 return;
             }
             console.log(stdout);
@@ -259,7 +235,7 @@ function createPrintHTMLDelivery(order, fontFamily) {
     let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
     result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
     let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
-        if (err) return console.log(err);
+        if (err) saveLog(JSON.stringify(err));
     });
     console.log(resultSave)
 }
@@ -285,7 +261,7 @@ function createPrintTXTDelivery(order) {
     let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
     result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
     let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
-        if (err) return console.log(err);
+        if (err) saveLog(JSON.stringify(err))
     });
     console.log(resultSave)
 }
@@ -315,7 +291,7 @@ function createPrintHTMLPickup(order, familyName) {
     result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
     let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
-        if (err) return console.log(err);
+        if (err) saveLog(JSON.stringify(err))
     });
 }
 
@@ -338,7 +314,7 @@ function createPrintTXTPickup(order) {
     result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
     let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
-        if (err) return console.log(err);
+        if (err) saveLog(JSON.stringify(err))
     });
 }
 
@@ -385,7 +361,7 @@ function generateOrderTable(orders, unavailable = false) {
                 });
                 button.classList.add('btn')
                 button.classList.add('btn-warning')
-                let dateAcceptedAt = formatDateTime.format(new Date(value.accepted_at))
+                let dateAcceptedAt = formatTime.format(new Date(value.accepted_at))
                 let values = [value.id, `${value.client_first_name} ${value.client_last_name}`, dateAcceptedAt, button]
                 generateTable(tbl, values)
             });
@@ -426,23 +402,27 @@ function generateTableHead(table, data) {
 }
 
 function generateItensTableTxT(items) {
-    let tblHead = [{ text: 'Qtd', limit: 3 }, { text: 'Item', limit: 25 }, { text: 'Valor', limit: 6 }]
+    let tblHead = [{text: 'Qtd', limit: 3}, {text: 'Item', limit: 25}, {text: 'Valor', limit: 6}]
     debugger;
     let stringBuilder = new StringBuilder();
     stringBuilder = generateTableTxt(stringBuilder, tblHead);
     $.each(items, function (key, value) {
         let itemInstruction = value.instructions ? `(${value.instructions})` : ""
-        let values = [{ text: value.quantity, limit: 3 }, { text: value.name.toUpperCase()+`${itemInstruction}`, limit: 25 }, {
+        let values = [{text: value.quantity, limit: 3}, {
+            text: value.name.toUpperCase() + `${itemInstruction}`,
+            limit: 25
+        }, {
             text: value.price.toFixed(2).replace(".", ","),
             limit: 6
         }]
         stringBuilder = generateTableTxt(stringBuilder, values)
         for (let option of value.options) {
             let optName = option.name.toString().toLowerCase();
-            let valuesOptions = [{ text: '-->', limit: 3 }, {
-                text: `${optName.charAt(0).toUpperCase() + optName.slice(1)}`,
+            let optQuantity = option.quantity > 1 ? ` (${option.quantity}x)` : ""
+            let valuesOptions = [{text: '-->', limit: 3}, {
+                text: `${optName.charAt(0).toUpperCase() + optName.slice(1) + optQuantity}`,
                 limit: 25
-            }, { text: option.price.toFixed(2).replace(".", ","), limit: 6 }]
+            }, {text: (option.price * option.quantity).toFixed(2).replace(".", ","), limit: 6}]
             stringBuilder = generateTableTxt(stringBuilder, valuesOptions)
         }
     });
@@ -480,7 +460,7 @@ function generateTableTxt(stringBuilder, data) {
             stringBuilder.append(`|${valor}|\n`)
             debugger;
             while (rest) {
-                let{valor,restante} = completa(rest, ' ',data[1].limit);
+                let {valor, restante} = completa(rest, ' ', data[1].limit);
                 stringBuilder.append(`|   |${valor}|      |\n`);
                 rest = restante;
             }
@@ -509,7 +489,12 @@ function completa(valor, caracter, limite, esquerda = false) {
             restante = stringValor.substring(limite, tamanhoValor);
         }
     }
-    return { "valor": valor, "restante": restante };
+    return {"valor": valor, "restante": restante};
+}
+
+function saveLog(erro) {
+    log = {"data": new Date(), "erro": erro};
+    fs.appendFileSync(path.join(__dirname, '..', 'erros.json'), JSON.stringify(log))
 }
 
 function openConfig() {
