@@ -72,18 +72,19 @@ $(document).ready(async function () {
 
     if (await checkApiAvailability()) {
         task.start();
-        try{
+        try {
             let orderRawData = fs.readFileSync(path.join(__dirname, '..', 'orders.json'));
             let orders = JSON.parse(orderRawData);
             generateOrderTable(orders.orders.sort(compareOrders), false)
-        }catch (e){
+        } catch (e) {
             saveLog(JSON.stringify(e))
             let file = {orders: []}
             fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
                 if (err) saveLog(JSON.stringify(err))
             });
             generateOrderTable(file.orders)
-        }} else {
+        }
+    } else {
         task.stop();
         generateOrderTable(null, true)
     }
@@ -160,7 +161,7 @@ async function verifyKey(order) {
                 createApiKey(response.data);
             })
             .catch((error) => {
-               saveLog(JSON.stringify(error))
+                saveLog(JSON.stringify(error))
             });
     }
 }
@@ -178,7 +179,6 @@ function createApiKey(data) {
 }
 
 function printOrders(orders) {
-    debugger;
     for (let order of orders) {
         printOrder(order)
     }
@@ -254,6 +254,13 @@ function createPrintTXTDelivery(order) {
     })
     let payment = paymentType[order.payment] ? paymentType[order.payment] : order.payment
     result = result.replace('%tipoPagamento%', payment)
+    let promoCartItem = order['items'].filter(filterByItemTypePromoCart)[0]
+    if (promoCartItem) {
+        let totalDiscount = formatCurrency.format(promoCartItem['cart_discount'])
+        result = result.replace('%totalDesconto%', `Desconto do Pedido: ${totalDiscount}`)
+    }else{
+        result = result.replace('%totalDesconto%', "")
+    }
     let subTotalPrice = formatCurrency.format(order['sub_total_price'])
     let totalPrice = formatCurrency.format(order['total_price'])
     result = result.replace('%subtotal%', subTotalPrice)
@@ -267,32 +274,13 @@ function createPrintTXTDelivery(order) {
 }
 
 function filterByItemType(obj) {
-    return 'type' in obj && obj.type === 'item';
+    return 'type' in obj && (obj.type === 'item');
 
 }
 
-function createPrintHTMLPickup(order, familyName) {
-    let result
-    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-pickup-modelo.txt'), {
-        encoding: 'utf8',
-        flag: 'r'
-    })
-    result = ret.replace('%font%', familyName)
-    result = result.replace('%itensPedido%', generateItensTable(order['items'].filter(filterByItemType)))
+function filterByItemTypePromoCart(obj) {
+    return 'type' in obj && (obj.type === 'promo_cart');
 
-    $.each(orderFieldsPickup, (key, value) => {
-        console.log(key + '=>' + value)
-        result = result.replace(key, order[value] ? order[value] : 'Não Informado')
-    })
-    let payment = paymentType[order.payment] ? paymentType[order.payment] : order.payment
-    result = result.replace('%tipoPagamento%', payment)
-    let subTotalPrice = formatCurrency.format(order['sub_total_price'])
-    let totalPrice = formatCurrency.format(order['total_price'])
-    result = result.replace('%subtotal%', subTotalPrice)
-    result = result.replace('%total%', totalPrice)
-    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.html'), result, 'utf8', function (err) {
-        if (err) saveLog(JSON.stringify(err))
-    });
 }
 
 function createPrintTXTPickup(order) {
@@ -309,6 +297,13 @@ function createPrintTXTPickup(order) {
     })
     let payment = paymentType[order.payment] ? paymentType[order.payment] : order.payment
     result = result.replace('%tipoPagamento%', payment)
+    let promoCartItem = order['items'].filter(filterByItemTypePromoCart)[0]
+    if (promoCartItem) {
+        let totalDiscount = formatCurrency.format(promoCartItem['cart_discount'])
+        result = result.replace('%totalDesconto%', `Desconto do Pedido: ${totalDiscount}`)
+    }else{
+        result = result.replace('%totalDesconto%', "")
+    }
     let subTotalPrice = formatCurrency.format(order['sub_total_price'])
     let totalPrice = formatCurrency.format(order['total_price'])
     result = result.replace('%subtotal%', subTotalPrice)
@@ -317,31 +312,6 @@ function createPrintTXTPickup(order) {
         if (err) saveLog(JSON.stringify(err))
     });
 }
-
-function generateItensTable(items) {
-    let tbl = document.createElement("table");
-    tbl.classList.add('table')
-    tbl.classList.add('table-sm')
-    let tblHead = ['Qtd.', 'Item', 'Valor']
-    generateTableHead(tbl, tblHead)
-    $.each(items, function (key, value) {
-        let itemInstruction = value.instructions ? `(${value.instructions})` : ""
-        let itemPrice = formatCurrency.format(value.price)
-        let itemName = `${value.name} ${itemInstruction}`
-        let values = [value.quantity, itemName.toUpperCase(), itemPrice]
-        generateTable(tbl, values)
-        let opt = "";
-        for (let option of value.options) {
-            let optPrice = formatCurrency.format(option.price)
-            opt = opt === "" ? `${option.name} - ${optPrice}` : opt + ", " + `${option.name} - ${optPrice}`;
-            let optName = option.name.toString().toLowerCase();
-            let valuesOptions = ['', `${optName.charAt(0).toUpperCase() + optName.slice(1)}`, optPrice]
-            generateTable(tbl, valuesOptions)
-        }
-    });
-    return tbl.outerHTML.replace(/&nbsp;/g, ' ')
-}
-
 
 function generateOrderTable(orders, unavailable = false) {
     if (!unavailable) {
@@ -403,7 +373,6 @@ function generateTableHead(table, data) {
 
 function generateItensTableTxT(items) {
     let tblHead = [{text: 'Qtd', limit: 3}, {text: 'Item', limit: 25}, {text: 'Valor', limit: 6}]
-    debugger;
     let stringBuilder = new StringBuilder();
     stringBuilder = generateTableTxt(stringBuilder, tblHead);
     $.each(items, function (key, value) {
@@ -458,7 +427,6 @@ function generateTableTxt(stringBuilder, data) {
         }
         if (i === data.length - 1) {
             stringBuilder.append(`|${valor}|\n`)
-            debugger;
             while (rest) {
                 let {valor, restante} = completa(rest, ' ', data[1].limit);
                 stringBuilder.append(`|   |${valor}|      |\n`);
@@ -472,7 +440,6 @@ function generateTableTxt(stringBuilder, data) {
 }
 
 function completa(valor, caracter, limite, esquerda = false) {
-    debugger;
     let restante = '';
     if (valor) {
         let stringValor = valor.toString();

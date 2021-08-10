@@ -1,0 +1,28 @@
+Nikao Burger
+Endereço: Rua Jovino Ribeiro, 145
+Contato: +55 33 99839 2353
+
+==================================
+Id do Pedido: 283771624
+Cliente: João Paulo
+Contato: +5524981552606
+Horário da Impressão: 04/05/2021 22:31:00
+==================================
+Tipo de Entrega: Retirada No Local
+Forma de Pagamento: Dinheiro
+Instruções de Entrega: Não Informado
+
+==================================
+Itens do Pedido:
+|Qtd|Item                     |Valor |
+|1  |X-BURGER                 |5,00  |
+|-->|Grande                   |2,00  |
+|-->|Catupiry (2x)            |4,00  |
+|-->|Cheddar (2x)             |6,00  |
+
+
+==================================
+
+Total do Pedido: R$ 17,00
+
+<JPR - Soluções Tecnológicas>

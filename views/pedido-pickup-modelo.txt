@@ -17,6 +17,7 @@ Itens do Pedido:
 %itensPedido%
 
 ==================================
+%totalDesconto%
 Total do Pedido: %total%
 
 <JPR - Soluções Tecnológicas>

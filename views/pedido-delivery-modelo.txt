@@ -18,6 +18,7 @@ Itens do Pedido:
 %itensPedido%
 
 ==================================
+%totalDesconto%
 Subtotal do Pedido: %subtotal%
 Taxa de Entrega: %totalEntrega%
 Total do Pedido: %total%
