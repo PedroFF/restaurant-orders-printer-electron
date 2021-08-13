@@ -6,7 +6,6 @@ const token = require(path.join(__dirname, '..', 'config.json')).token;
 const axios = require('axios');
 const agenda = require('node-cron');
 const formatCurrency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'})
-const formatDateTime = new Intl.DateTimeFormat('pt', {year: 'numeric', month: '2-digit', day: '2-digit'})
 const formatTime = new Intl.DateTimeFormat('pt', {
     year: 'numeric',
     month: '2-digit',
@@ -122,7 +121,7 @@ function saveOrders(newOrders) {
     for (order of newOrders) {
         file.orders.push(order);
     }
-    let result = fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
+   fs.writeFileSync(path.join(__dirname, '..', 'orders.json'), JSON.stringify(file), (err) => {
         if (err) saveLog(JSON.stringify(err))
     });
     console.log(result)
@@ -171,10 +170,9 @@ function createApiKey(data) {
     let config = JSON.parse(rawdata);
     Object.assign(config, {API_KEY: data.accessToken});
     api_key = data.accessToken;
-    let result = fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
+    fs.writeFileSync(path.join(__dirname, '..', 'config.json'), JSON.stringify(config), (err) => {
         if (err) saveLog(JSON.stringify(err))
     });
-    console.log(result)
     console.log(__dirname)
 }
 
@@ -214,32 +212,6 @@ function createPrintHTML(order) {
     }
 }
 
-function createPrintHTMLDelivery(order, fontFamily) {
-    let result
-    ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-delivery-modelo.txt'), {
-        encoding: 'utf8',
-        flag: 'r'
-    })
-    result = ret.replace('%font%', fontFamily)
-    result = result.replace('%itensPedido%', generateTable(order['items'].filter(filterByItemType)))
-    $.each(orderFieldsDelivery, (key, value) => {
-        console.log(key + '=>' + value)
-        result = result.replace(key, order[value] ? order[value] : 'Não Informado')
-    })
-    let payment = paymentType[order.payment] ? paymentType[order.payment] : order.payment
-    result = result.replace('%tipoPagamento%', payment)
-    let subTotalPrice = formatCurrency.format(order['sub_total_price'])
-    let totalPrice = formatCurrency.format(order['total_price'])
-    result = result.replace('%subtotal%', subTotalPrice)
-    result = result.replace('%total%', totalPrice)
-    let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
-    result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
-    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
-        if (err) saveLog(JSON.stringify(err));
-    });
-    console.log(resultSave)
-}
-
 function createPrintTXTDelivery(order) {
     let result
     ret = fs.readFileSync(path.join(__dirname, '..', 'views', 'pedido-delivery-modelo.txt'), {
@@ -258,7 +230,7 @@ function createPrintTXTDelivery(order) {
     if (promoCartItem) {
         let totalDiscount = formatCurrency.format(promoCartItem['cart_discount'])
         result = result.replace('%totalDesconto%', `Desconto do Pedido: ${totalDiscount}`)
-    }else{
+    } else {
         result = result.replace('%totalDesconto%', "")
     }
     let subTotalPrice = formatCurrency.format(order['sub_total_price'])
@@ -266,11 +238,14 @@ function createPrintTXTDelivery(order) {
     result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
     let totalDelivery_fee = order['items'].find(element => element.type === 'delivery_fee')
-    result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
-    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
+    if (totalDelivery_fee) {
+        result = result.replace('%totalEntrega%', formatCurrency.format(totalDelivery_fee.price))
+    } else {
+        result = result.replace('%totalEntrega%', "R$ 0,00")
+    }
+    fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
         if (err) saveLog(JSON.stringify(err))
     });
-    console.log(resultSave)
 }
 
 function filterByItemType(obj) {
@@ -301,14 +276,14 @@ function createPrintTXTPickup(order) {
     if (promoCartItem) {
         let totalDiscount = formatCurrency.format(promoCartItem['cart_discount'])
         result = result.replace('%totalDesconto%', `Desconto do Pedido: ${totalDiscount}`)
-    }else{
+    } else {
         result = result.replace('%totalDesconto%', "")
     }
     let subTotalPrice = formatCurrency.format(order['sub_total_price'])
     let totalPrice = formatCurrency.format(order['total_price'])
     result = result.replace('%subtotal%', subTotalPrice)
     result = result.replace('%total%', totalPrice)
-    let resultSave = fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
+    fs.writeFileSync(path.join(__dirname, '..', 'views', 'pedido.txt'), result, 'utf8', function (err) {
         if (err) saveLog(JSON.stringify(err))
     });
 }

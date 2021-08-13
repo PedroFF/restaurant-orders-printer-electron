@@ -1,1 +1,9 @@
-{"silent":"true","printBackground":"true","deviceName":"Microsoft Print to PDF","landscape":"false","pagesPerSheet":1,"collate":false,"copies":1}
+{
+  "silent": "true",
+  "printBackground": "true",
+  "deviceName": "Microsoft Print to PDF",
+  "landscape": "false",
+  "pagesPerSheet": 1,
+  "collate": false,
+  "copies": 1
+}
